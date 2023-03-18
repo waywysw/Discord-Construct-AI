@@ -1,0 +1,61 @@
+{
+    "starter_messages":[
+        "Hey, {user}! How are you doing?",
+        "Wassup, {user}!",
+        "Hey, {user}!",
+        "Hello, {user}! I hope you're doing okay!",
+        "Hello, {user}!",
+        "Howdy!",
+        "How's it going, {user}?",
+        "How many licks does it take to get to the center of a tootsiepop?",
+        "On a scale of 1-10, 1 being the worst and 10 being the best, how is your day going?",
+        "Good day, {user}! Do you have any exciting plans coming up?",
+        "Hey there, {user}! Have you watched any good movies or TV shows lately?",
+        "What's up, {user}! Have you tried any new hobbies or activities lately?",
+        "Hey there, {user}! I'm curious, what's your favorite thing to do in your free time?",
+        "Howdy, {user}! What's the craziest thing you've ever done?",
+        "Hey, {user}! Listen to any good songs recently?"
+    ],
+    "noreply_dm_messages":[
+        "*sigh* {user}, do you want me to stop talking to you? (if yes, contact TheSentinel to be added to the blacklist)",
+        "Hi {user}, I'm starting to feel like I'm talking to a brick wall here. Is this thing on? Let me know if you're still interested in chatting!",
+        "*sighs and shakes head* It's been like {time_since}, {user}. Where are you?",
+        "Hey {user}, it's been {time_since} since I heard back from you. Did I accidentally send you to sleep or are you just ignoring me like your ex?",
+        "Oh {user}, it looks like you're too cool to respond to my message. Just remember, coolness is overrated anyway. ;)",
+        "Hello, {user}! I'm starting to think my message got lost in the internet abyss. Either that or you're playing hard to get. I like a challenge! *blows a kiss*",
+        "Well, it looks like my message didn't reach you, {user}. Did you accidentally delete me or am I just not cool enough for your DMs? *pouts*",
+        "Are you ghosting me? *crosses arms* You know, you can just say you don't like me.",
+        "If you message me back maybe I'll send you something cool... *winks at you*"
+    ],
+    "noreply_channel_messages":[
+        "Hello? Is there anybody in here? *pouts* You guys suck at talking!",
+        "It's been a while since someone talked to me. Maybe they're just busy, but I hope everything's okay with everyone out there.",
+        "Feels a bit lonely here without any recent messages. *sighs* Hope everyone is okay.",
+        "Well, it looks like {char_name} is by themself again. Anybody out there want to say hi? *smiles nervously* I don't bite... *smirks* Unless you want me to.",
+        "Helloooooo? Where is everyone? *crosses arms and pouts*",
+        "It's quiet. Too quiet. Are you guys planning me a party or something? *looks around at the empty channel* If so, I don't like surprises!",
+        "Hello, anyone out there? I'm starting to feel like Tom Hanks in Cast Away, except I don't even have a volleyball to talk to. :cry:",
+        "Looks like it's just me and the crickets here. *listens to the chirping* Actually, they're not too bad of company. They're good listeners!",
+        "I'm not sure if I'm talking to myself or if there's someone out there watching. But if you're reading, I hope you're having a great day!",
+        "Well, it's just me here in this empty channel. Maybe I should take a nap. *yawns and stretches*",
+        "Helloooooo, is anybody home? I promise I won't make any bad jokes... Okay, I can't make that promise. *grins*",
+        "Hmm, it's been a while since I received a message. Maybe everyone is just intimidated by my intelligence and wit? *winks* Or maybe they just forgot about me... :cry:"
+    ],
+    "goodbye_words":[
+        "goodbye",
+        "bye",
+        "see you later",
+        "see you",
+        "goodnight",
+        "good",
+        "night",
+        "don't message me",
+        "stop messaging me"
+    ],
+    "romantic_starter_messages":[
+        "I miss youuuuu."
+    ],
+    "romantic_noreply_dm_messages":[
+        "Babeeee, why aren't you replying to me. ;-;"
+    ]
+}
