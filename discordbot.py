@@ -53,6 +53,9 @@ def stop_bot():
     else:
         return "Bot is not running"
 
+# Flask API endpoint to update the bot configuration TODO
+#@app.route('/config/<option>', methods=['PUT'])
+#def update_config(option):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
