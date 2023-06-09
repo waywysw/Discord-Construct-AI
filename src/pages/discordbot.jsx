@@ -3,6 +3,7 @@ import { RxDiscordLogo } from 'react-icons/rx';
 import { getBotStatus, getDiscordSettings, startDisBot, stopDisBot, saveDiscordConfig, getAvailableChannels } from '../components/discordbot/dbotapi';
 import { FiRefreshCcw, FiSave } from 'react-icons/fi';
 import { getSettings } from '../components/chatapi';
+import CurrentCharacter from '../components/charactercomponents/CurrentCharacter';
 
 
 const DiscordBot = () => {
@@ -111,7 +112,6 @@ const DiscordBot = () => {
         // Add channel to selected channels
         updatedChannels.add(channelId);
       }
-  
       // Update the channelList state to reflect the selected channels
       setChannelList([...updatedChannels]);
       return updatedChannels;
@@ -171,6 +171,12 @@ const DiscordBot = () => {
               <FiRefreshCcw className="react-icon"/>
             </button>
           </div>
+          {selectedCharacter && 
+            <div className="settings-box" id='character'>
+              <h2 className='text-selected-text font-bold'>Currently Selected Character</h2>
+              <CurrentCharacter Character={selectedCharacter} />
+            </div>
+          }
         </div>
         <div className="items-center flex flex-col mt-4">
           <button className="aspect-w-1 aspect-h-1 rounded-lg shadow-md backdrop-blur-md p-2 w-16 border-2 border-solid border-gray-500 outline-none justify-center cursor-pointer transition-colors hover:bg-blue-600 text-selected-text" onClick={(event) => saveData()}>
