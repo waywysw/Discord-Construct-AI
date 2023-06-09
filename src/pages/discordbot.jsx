@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RxDiscordLogo } from 'react-icons/rx';
-import { getBotStatus, getDiscordSettings, startDisBot, stopDisBot, saveDiscordConfig, getAvailableChannels } from '../components/discordbot/dbotapi';
+import { getBotStatus, getDiscordSettings, startDisBot, stopDisBot, saveDiscordConfig, getAvailableChannels, getBotInvite } from '../components/discordbot/dbotapi';
 import { FiRefreshCcw, FiSave } from 'react-icons/fi';
 import { getSettings } from '../components/chatapi';
 import CurrentCharacter from '../components/charactercomponents/CurrentCharacter';
@@ -18,7 +18,7 @@ const DiscordBot = () => {
   const [settings, setSettings] = useState({});
   const [activeServerId, setActiveServerId] = useState(null);
   const [selectedChannels, setSelectedChannels] = useState(new Set());
-
+  const [botInvite, setBotInvite] = useState('');
   const channels = channelList.join(', ');
 
   const handleToggle = async () => {
@@ -37,8 +37,16 @@ const DiscordBot = () => {
     const newChannels = event.target.value.split(',').map(channel => channel.trim());
     setChannelList(newChannels);
     setSelectedChannels(new Set(newChannels));
-  };  
-  
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getBotInvite();
+      setBotInvite(response);
+    };
+    fetchData();
+  }, [isOn]);
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await getBotStatus();
@@ -130,6 +138,13 @@ const DiscordBot = () => {
             <button className={`discord-button ${isOn ? 'discord-button-on' : ''}`} onClick={handleToggle}>
               {isOn ? 'ON' : 'OFF'}
             </button>
+            {isOn ? 
+            <button>
+              <a href={botInvite} target="_blank" rel="noreferrer" className="aspect-w-1 aspect-h-1 rounded-lg shadow-md backdrop-blur-md p-2 w-16 border-2 border-solid border-gray-500 outline-none justify-center cursor-pointer transition-colors hover:bg-blue-600 text-selected-text">Invite Bot</a>
+            </button>
+            :
+            <></>
+            }
           </div>
           <div className="settings-box" id='bot-token'>
             <h2 className='text-selected-text text-xl font-bold'>Discord Bot Token</h2>

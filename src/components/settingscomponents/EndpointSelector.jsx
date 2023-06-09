@@ -13,7 +13,7 @@ const EndpointSelector = () => {
       if (localOption != null){
         setSelectedOption({value: localOption, label: localOption});
         setInputValue(localStorage.getItem('endpoint'));
-      }
+      };
     }, []);
 
     const handleOptionChange = (selectedOption) => {
@@ -37,7 +37,7 @@ const EndpointSelector = () => {
         settings.data.endpointType = selectedOption.value;
         await saveDiscordConfig(settings.data);
         await updateDiscordBot();
-      }
+      };
     };
 
     function ensureUrlFormat(str) {
