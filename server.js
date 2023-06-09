@@ -16,8 +16,6 @@ import encode from 'png-chunks-encode';
 import jimp from 'jimp';
 import { Client, GatewayIntentBits, Collection } from 'discord.js';
 import readline from 'readline';
-import stream from 'stream';
-import e from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -301,69 +299,6 @@ app.post('/tts/generate/:voice_id', async (req, res) => {
   
 });
 
-/*
-############################################
-##                                        ##
-##          Conversation ROUTES           ##
-##                                        ##
-############################################
-*/
-
-app.post('/conversation', (req, res) => {
-  const conversationData = req.body;
-  const chatName = conversationData.conversationName;
-
-  if (!fs.existsSync(CONVERSATIONS_FOLDER)) {
-      fs.mkdirSync(CONVERSATIONS_FOLDER);
-  }
-  const filePath = path.join(CONVERSATIONS_FOLDER, `${chatName}.json`);
-  try {
-      fs.writeFileSync(filePath, JSON.stringify(conversationData));
-      res.status(200).json({ status: 'success' });
-  } catch (e) {
-      console.error(`Error saving conversation: ${e.toString()}`);
-      res.status(500).json({ status: 'error', message: 'An error occurred while saving the conversation.' });
-  }
-});
-
-app.get('/conversations', (req, res) => {
-  if (!fs.existsSync(CONVERSATIONS_FOLDER)) {
-      res.json({ conversations: [] });
-      return;
-  }
-  const conversationFiles = fs.readdirSync(CONVERSATIONS_FOLDER);
-  const conversationNames = conversationFiles.map(file => path.parse(file).name);
-  res.json({ conversations: conversationNames });
-});
-
-app.route('/conversation/:conversation_name')
-  .get((req, res) => {
-      const convoPath = path.join(CONVERSATIONS_FOLDER, `${req.params.conversation_name}.json`);
-      try {
-          const convoData = JSON.parse(fs.readFileSync(convoPath));
-          res.json(convoData);
-      } catch (e) {
-          if (e.code === 'ENOENT') {
-              res.status(404).json({ error: 'Conversation not found' });
-          } else {
-              res.status(500).json({ error: 'An error occurred while reading the conversation.' });
-          }
-      }
-  })
-  .delete((req, res) => {
-      const convoPath = path.join(CONVERSATIONS_FOLDER, `${req.params.conversation_name}.json`);
-      try {
-          fs.unlinkSync(convoPath);
-          res.json({ message: 'Conversation deleted successfully' });
-      } catch (e) {
-          if (e.code === 'ENOENT') {
-              res.status(404).json({ error: 'Conversation not found' });
-          } else {
-              res.status(500).json({ error: 'An error occurred while deleting the conversation.' });
-          }
-      }
-  });
-
   async function import_tavern_character(img_url, char_id) {
     try {
       let format;
@@ -572,100 +507,6 @@ app.post('/tavern-character/json-export/:char_id', (req, res) => {
     res.status(500).json({ error: 'Character JSON failed to export' });
   }
 });
-/*
-############################################
-##                                        ##
-##        Advanced Character ROUTES       ##
-##                                        ##
-############################################
-*/
-
-app.delete('/advanced-character/:char_id/:emotion', (req, res) => {
-    const { char_id, emotion } = req.params;
-    const emotion_path = path.join(CHARACTER_ADVANCED_FOLDER, char_id, `${emotion}.png`);
-    const default_path = path.join(CHARACTER_ADVANCED_FOLDER, char_id, 'default.png');
-
-    if (fs.existsSync(emotion_path)) {
-        fs.unlinkSync(emotion_path);
-        if (emotion === 'default' && fs.existsSync(default_path)) {
-            fs.unlinkSync(default_path);
-        }
-        res.json({ success: `Character emotion ${emotion} deleted.` });
-    } else {
-        res.status(404).json({ failure: `Character does not have an image for the ${emotion} emotion.` });
-    }
-});
-
-app.get('/advanced-character/:char_id/:emotion', (req, res) => {
-    const { char_id, emotion } = req.params;
-    const emotion_path = path.join(CHARACTER_ADVANCED_FOLDER, char_id, `${emotion}.png`);
-    const default_path = path.join(CHARACTER_ADVANCED_FOLDER, char_id, 'default.png');
-
-    if (fs.existsSync(emotion_path)) {
-        const imagePath = path.join(CHARACTER_ADVANCED_FOLDER, char_id, `${emotion}.png`);
-        res.json({ success: 'Character emotion found', path: imagePath });
-    } else if (fs.existsSync(default_path)) {
-        const imagePath = path.join(CHARACTER_ADVANCED_FOLDER, char_id, 'default.png');
-        res.json({ failure: 'Character emotion not found, reverting to default', path: imagePath });
-    } else {
-        res.status(404).json({ failure: 'Character does not have an image for this emotion.' });
-    }
-});
-
-app.post('/advanced-character/:char_id/:emotion', upload.single('emotion'), (req, res) => {
-  const { char_id, emotion } = req.params;
-  const char_folder = path.join(CHARACTER_ADVANCED_FOLDER, char_id);
-  if (!fs.existsSync(char_folder)) {
-      fs.mkdirSync(char_folder);
-  }
-  const emotion_file = req.file;
-  if (!emotion_file) {
-      res.status(500).json({ error: 'No emotion image file found' });
-      return;
-  }
-  // use the char_id and emotion as the filename
-  const emotion_file_name = `${emotion}.png`;
-  const emotion_file_path = path.join(char_folder, emotion_file_name);
-  // use fs.copyFile to copy the file from the temp folder to the destination folder
-  fs.copyFile(emotion_file.path, emotion_file_path, err => {
-      if (err) {
-          res.status(500).json({ error: 'An error occurred while saving the emotion image file.' });
-      } else {
-          res.json({ path: emotion_file_path });
-      }
-  });
-});
-
-app.get('/advanced-character/:char_id', (req, res) => {
-    const char_folder = path.join(CHARACTER_ADVANCED_FOLDER, req.params.char_id);
-    if (fs.existsSync(char_folder)) {
-        const emotions_with_ext = fs.readdirSync(char_folder);
-        const emotions = emotions_with_ext.map(emotion => path.parse(emotion).name);
-        res.json({ success: 'Character emotions found', emotions });
-    } else {
-        res.status(404).json({ failure: 'Character does not have any emotions.' });
-    }
-});
-
-app.post('/character-speech/:char_id', (req, res) => {
-  const { char_id } = req.params;
-  const character_speech = req.body;
-  if (!character_speech) {
-      res.status(500).json({ error: 'No character speech data found' });
-      return;
-  }
-  const char_folder = path.join(CHARACTER_ADVANCED_FOLDER, char_id);
-  if (!fs.existsSync(char_folder)) {
-      fs.mkdirSync(char_folder);
-  }
-  fs.writeFile(path.join(char_folder, 'character_speech.json'), JSON.stringify(character_speech), err => {
-      if (err) {
-          res.status(500).json({ error: 'An error occurred while saving the character speech data.' });
-      } else {
-          res.send('Character speech saved successfully!');
-      }
-  });
-});
 
 /*
 ############################################
@@ -824,46 +665,6 @@ app.delete('/backgrounds/:filename', (req, res) => {
       res.status(200).json({ success: `File ${filename} deleted.` });
     }
   });
-});
-
-/*
-############################################
-##                                        ##
-##              USER ROUTES               ##
-##                                        ##
-############################################
-*/
-app.post('/user-avatar', (req, res) => {
-  if (!req.files || Object.keys(req.files).length === 0 || !req.files.avatar) {
-    res.status(400).send('No avatar file provided');
-    return;
-  }
-
-  const avatar = req.files.avatar;
-  const ext = '.' + avatar.name.split('.').pop();
-  const filename = Date.now() + ext;
-  const filepath = join(USER_IMAGES_FOLDER, filename);
-  const stream = createWriteStream(filepath);
-
-  avatar.mv(stream.path, err => {
-    if (err) {
-      res.status(500).send('An error occurred while uploading the file.');
-    } else {
-      res.status(200).json({ avatar: filename });
-    }
-  });
-});
-
-app.get('/user-avatar', (req, res) => {
-  const avatars = [];
-  const files = fs.readdirSync(USER_IMAGES_FOLDER);
-  files.forEach(file => {
-    const ext = path.extname(file);
-    if (ext === '.png') {
-      avatars.push(file);
-    }
-  });
-  res.json({ avatars });
 });
 
 app.post('/textgen/:endpointType', async (req, res) => {
