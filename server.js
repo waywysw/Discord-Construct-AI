@@ -1006,40 +1006,56 @@ app.get('/discord-bot/id', (req, res) => {
 });
 
 // Listen for the 'messageCreate' event
+const messageQueue = [];
+let isProcessing = false;
+
 disClient.on('messageCreate', async (message) => {
   const prefix = '!'; // Define your command prefix
 
-  // Do not handle bot messages (to avoid possible infinite loops)
+  // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id) return;
 
   // If the message does not start with the command prefix and it's channel id is in botSettings.channels, return.
   if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id)) return;
   if (message.content.startsWith('.')) return;
-  // Extract command name and arguments from the message
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
 
-  // Get the command object from the Collection
-  const command = disClient.commands.get(commandName);
+  // Add message to the queue
+  messageQueue.push(message);
 
-  // If the command does not exist, return
-  if (!command){
-    if (botSettings.channels.includes(message.channel.id) || message.channel.type === 'DM'){
-      message.channel.sendTyping();
-      await doCharacterChat(message);
+  // If the bot is already processing a message, do not start processing this one
+  if (isProcessing) return;
+
+  // Process messages in the queue
+  while (messageQueue.length > 0) {
+    isProcessing = true;
+    const currentMessage = messageQueue.shift();
+
+    // Extract command name and arguments from the message
+    const args = currentMessage.content.slice(prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
+    // Get the command object from the Collection
+    const command = disClient.commands.get(commandName);
+
+    // If the command does not exist, return
+    if (!command){
+      if (botSettings.channels.includes(currentMessage.channel.id) || currentMessage.channel.type === 'DM'){
+        currentMessage.channel.sendTyping();
+        await doCharacterChat(currentMessage);
+      }
+    } else {
+      // Execute the command
+      try {
+        await command.execute(currentMessage, args);
+      } catch (error) {
+        console.error(`Failed to execute command "${commandName}":`, error);
+        await currentMessage.reply('There was an error trying to execute that command!');
+      }
     }
-    return;
+    isProcessing = false;
   }
-  
-  // Execute the command
-  try {
-    await command.execute(message, args);
-  } catch (error) {
-    console.error(`Failed to execute command "${commandName}":`, error);
-    await message.reply('There was an error trying to execute that command!');
-  }
-  
 });
+
 
 async function doCharacterChat(message){
   let charId = botSettings.charId;
