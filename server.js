@@ -858,7 +858,7 @@ app.post('/text/status', async (req, res) => {
 ############################################
 */
 // Create a new client instance
-const disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
+let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
   GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
   GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
   GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
@@ -888,6 +888,10 @@ disClient.once('ready', () => {
 const foldersPath = path.join('./src/discord/', 'commands');
 const commandFolders = fs.readdirSync(foldersPath)
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled promise rejection:', reason);
+});
+
 app.get('/discord-bot/start', (req, res) => {
   if (!botReady) {
     if(!botSettings.token || !botSettings.channels || !botSettings.charId || !botSettings.endpoint || !botSettings.endpointType || !botSettings.settings) {
@@ -898,21 +902,19 @@ app.get('/discord-bot/start', (req, res) => {
       return;
     }
     try{
-      for (const folder of commandFolders) {
-        const commandsPath = path.join(foldersPath, folder);
-        const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-        for (const file of commandFiles) {
-          const filePath = path.join(commandsPath, file);
-          const command = require(filePath);
-          // Set a new item in the Collection with the key as the command name and the value as the exported module
-          if ('data' in command && 'execute' in command) {
-            disClient.commands.set(command.data.name, command);
-          } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-          }
-        }
-      }
-      disClient.login(botSettings.token);
+      disClient.login(botSettings.token)
+      .catch(error => {
+        console.error('Failed to log in to Discord.', error);
+        res.status(500).send({ 
+          message: 'Failed to log in to Discord. Token might be invalid.',
+          error: error.toString() 
+        });
+        disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
+          GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
+          GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
+          GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
+        ] });
+      });
       res.send('Bot started');
       botReady = true;
     } catch (error) {
@@ -930,7 +932,12 @@ app.get('/discord-bot/start', (req, res) => {
 
 app.get('/discord-bot/stop', (req, res) => {
   if (botReady) {
-      disClient.ws.destroy();
+      disClient.destroy();
+      disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
+        GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
+        GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
+      ] });
       botReady = false;
       res.send('Bot stopped');
   } else {
