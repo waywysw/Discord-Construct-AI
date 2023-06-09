@@ -1,12 +1,15 @@
 import React, {useEffect, useState} from 'react';
+import BackgroundSelector from '../components/menucomponents/BackgroundSelector';
+import EndpointSelector from '../components/settingscomponents/EndpointSelector';
 const Home = () => {
   return (
     <>
     <div>
-      <h1 className='settings-panel-header text-xl font-bold'>Welcome to Project Akiko</h1>
+      <h1 className='settings-panel-header text-xl font-bold'>Welcome to the Akiko Discord Bot UI!</h1>
       <div className='settings-panel'>
-        <p>This is a work in progress.  Please check back later. To get started click the 'Characters' icon above.</p>
         <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4">
+          <BackgroundSelector />
+          <EndpointSelector />
         </div>
       </div>
     </div>
