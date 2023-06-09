@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { saveDiscordConfig, getDiscordSettings } from "./discordbot/dbotapi";
+import { saveDiscordConfig, getDiscordSettings, updateDiscordBot } from "./discordbot/dbotapi";
 import { FiRefreshCcw, FiSave } from 'react-icons/fi';
 
 const GenSettingsMenu = () => {
@@ -114,6 +114,7 @@ const GenSettingsMenu = () => {
         let discord = await getDiscordSettings();
         discord.data.settings = settings;
         await saveDiscordConfig(discord.data);
+        await updateDiscordBot();
     };
 
     return (

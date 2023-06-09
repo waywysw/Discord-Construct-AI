@@ -994,6 +994,8 @@ app.get('/discord-bot/id', (req, res) => {
     res.status(500).send('Bot not ready');
     return;
   }
+  let id = getBotAppId();
+  return id;
 });
 
 // Listen for the 'messageCreate' event

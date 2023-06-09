@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Connect from '../Connect';
 import HordeModelSelector from './HordeModelSelector';
-import { getDiscordSettings } from '../discordbot/dbotapi';
+import { getDiscordSettings, updateDiscordBot } from '../discordbot/dbotapi';
 
 const EndpointSelector = () => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -21,7 +21,7 @@ const EndpointSelector = () => {
       setInputValue(getDefaultInputValue(selectedOption.value));
     };
     
-    const handleConnectClick = () => {
+    const handleConnectClick = async () => {
       if(selectedOption.value === 'Horde') {
         localStorage.setItem('endpoint', inputValue);
         localStorage.setItem('endpointType', selectedOption.value);
@@ -32,12 +32,13 @@ const EndpointSelector = () => {
         localStorage.setItem('endpointType', selectedOption.value);
         localStorage.setItem('endpoint', inputValue);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
-        let settings = getDiscordSettings();
+        let settings = await getDiscordSettings();
         settings.data.endpoint = url;
         settings.data.endpointType = selectedOption.value;
-        saveDiscordConfig(settings.data);
+        await saveDiscordConfig(settings.data);
+        await updateDiscordBot();
       }
-      };
+    };
 
     function ensureUrlFormat(str) {
         let url;
