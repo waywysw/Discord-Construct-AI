@@ -132,19 +132,19 @@ const DiscordBot = () => {
             </button>
           </div>
           <div className="settings-box" id='bot-token'>
-            <h2 className='text-selected-text font-bold'>Discord Bot Token</h2>
+            <h2 className='text-selected-text text-xl font-bold'>Discord Bot Token</h2>
             <div className="input-group">
               <input type="text" value={botToken} onChange={(event) => setBotToken(event.target.value)} />
             </div>
           </div>
           <div className="settings-box" id='channel'>
-            <h2 className='text-selected-text font-bold'>Visible Channels</h2>
+            <h2 className='text-selected-text text-xl font-bold'>Visible Channels</h2>
             <div className="input-group">
               <input type="text" value={channels} onChange={handleChannelsChange} />
             </div>
           </div>
           <div className="settings-box" id='available-channels'>
-            <h2 className='text-selected-text font-bold'>Available Channels</h2>
+            <h2 className='text-selected-text text-xl font-bold'>Available Channels</h2>
             {availableChannels &&
               availableChannels.map(server => (
                 <div key={server.id} className='bg-selected-bb-color p-4 rounded-lg shadow-md border-2 border-solid border-gray-500'>
@@ -174,7 +174,7 @@ const DiscordBot = () => {
           </div>
           {selectedCharacter && 
             <div className="settings-box" id='character'>
-              <h2 className='text-selected-text font-bold'>Currently Selected Character</h2>
+              <h2 className='text-selected-text text-xl font-bold'>Currently Selected Character</h2>
               <CurrentCharacter Character={selectedCharacter} />
             </div>
           }

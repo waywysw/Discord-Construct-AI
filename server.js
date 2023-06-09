@@ -1023,7 +1023,7 @@ disClient.on('messageCreate', async (message) => {
     }
     return;
   }
-
+  
   // Execute the command
   try {
     await command.execute(message, args);
