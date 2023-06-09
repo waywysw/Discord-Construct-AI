@@ -1010,7 +1010,7 @@ disClient.on('messageCreate', async (message) => {
   const prefix = '!'; // Define your command prefix
 
   // Do not handle bot messages (to avoid possible infinite loops)
-  if (message.author.bot) return;
+  if (message.author.id === disClient.user.id) return;
 
   // If the message does not start with the command prefix and it's channel id is in botSettings.channels, return.
   if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id)) return;
