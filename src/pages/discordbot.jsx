@@ -4,6 +4,7 @@ import { getBotStatus, getDiscordSettings, startDisBot, stopDisBot, saveDiscordC
 import { FiRefreshCcw, FiSave } from 'react-icons/fi';
 import { getSettings } from '../components/chatapi';
 import CurrentCharacter from '../components/charactercomponents/CurrentCharacter';
+import GenSettingsMenu from '../components/GenSettingsMenu';
 
 
 const DiscordBot = () => {
@@ -177,6 +178,7 @@ const DiscordBot = () => {
               <CurrentCharacter Character={selectedCharacter} />
             </div>
           }
+          <GenSettingsMenu />
         </div>
         <div className="items-center flex flex-col mt-4">
           <button className="aspect-w-1 aspect-h-1 rounded-lg shadow-md backdrop-blur-md p-2 w-16 border-2 border-solid border-gray-500 outline-none justify-center cursor-pointer transition-colors hover:bg-blue-600 text-selected-text" onClick={(event) => saveData()}>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Connect from '../Connect';
 import HordeModelSelector from './HordeModelSelector';
+import { getDiscordSettings } from '../discordbot/dbotapi';
 
 const EndpointSelector = () => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -31,6 +32,10 @@ const EndpointSelector = () => {
         localStorage.setItem('endpointType', selectedOption.value);
         localStorage.setItem('endpoint', inputValue);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
+        let settings = getDiscordSettings();
+        settings.data.endpoint = url;
+        settings.data.endpointType = selectedOption.value;
+        saveDiscordConfig(settings.data);
       }
       };
 
@@ -69,6 +74,7 @@ const EndpointSelector = () => {
     ];
   
     return (
+      <>
         <div className="centered settings-box">
           <div className='mb-4'>
             <h1 className='text-xl font-bold'>Text Generation Endpoint</h1>
@@ -99,9 +105,10 @@ const EndpointSelector = () => {
           <Connect/>
           {selectedOption && selectedOption.value === 'Horde' && (
             <HordeModelSelector/>
-            )}
+          )}
         </div>
         </div>
+        </>
     );
   };
   

@@ -17,7 +17,7 @@ useEffect(() => {
     }
 
     fetchImageUrl();
-}, [Character]);
+}, [character]);
 
 useEffect(() => {
     fetchCharacter(Character).then((data) => {
