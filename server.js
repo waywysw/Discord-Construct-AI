@@ -1072,8 +1072,8 @@ async function doCharacterChat(message){
     fs.writeFileSync(pathName, '', { flag: 'wx' });
   }
 
-  fs.appendFileSync(pathName, `${message.author.username}:${message.content}\n${character.name}:${response[0]}\n`);
-  message.channel.send(response[0]);
+  fs.appendFileSync(pathName, `${message.author.username}:${message.content}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`);
+  message.channel.send(response[0].replace('<USER>', message.author.username));
 };
 
 async function getPrompt(charId, message){
@@ -1081,7 +1081,7 @@ async function getPrompt(charId, message){
   let history = await getHistory(charId, channelID, 20);
   let character = await getCharacter(charId);
   let currentMessage = `${message.author.username}: ${message.content}`;
-  const basePrompt = character.name + "'s Persona:\n" + character.description + '\nScenario:' + character.scenario + '\nExample Dialogue:\n' + character.mes_example.replace('{{CHAR}}', character.name) + '\n';
+  const basePrompt = character.name + "'s Persona:\n" + character.description + '\nScenario:' + character.scenario + '\nExample Dialogue:\n' + character.mes_example.replace('{{CHAR}}', character.name).replace('<USER>', message.author.username) + '\n';
   const convo = 'Current Conversation:\n' + history + `\n`+ currentMessage + '\n';
   const createdPrompt = basePrompt + convo + character.name + ':';
   return createdPrompt;
