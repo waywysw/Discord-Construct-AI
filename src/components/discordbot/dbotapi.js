@@ -6,29 +6,28 @@ export async function getBotStatus(){
     return response.data;
 }
 export async function startDisBot(){
-    const response = axios.get(`${JS_API}/discord-bot/start`);
+    const response = await axios.get(`${JS_API}/discord-bot/start`);
     return response;
 }
 export async function stopDisBot(){
-    const response = axios.get(`${JS_API}/discord-bot/stop`);
+    const response = await axios.get(`${JS_API}/discord-bot/stop`);
     return response;
 }
 export async function getDiscordSettings(){
-    const response = axios.get(`${JS_API}/discord-bot/config`);
+    const response = await axios.get(`${JS_API}/discord-bot/config`);
     return response;
 }
 export async function saveDiscordConfig(data){
-    const response = axios.post(`${JS_API}/discord-bot/config`, data);
+    const response = await axios.post(`${JS_API}/discord-bot/config`, data);
     return response;
 }
 export async function getAvailableChannels(){
-    const response = axios.get(`${JS_API}/discord-bot/guilds`);
+    const response = await axios.get(`${JS_API}/discord-bot/guilds`);
     return response;
 }
 export async function updateDiscordBot(){
     axios.get(`${JS_API}/discord-bot/update`);
 }
-export async function getBotInvite(){
-    const response = axios.get(`${JS_API}/discord-bot/id`);
-    return `https://discord.com/oauth2/authorize?client_id=${response.data}&scope=bot&permissions=1099511627775`
+export async function getBotInvite(appId){
+    return `https://discord.com/oauth2/authorize?client_id=${appId}&scope=bot&permissions=1099511627775`
 }

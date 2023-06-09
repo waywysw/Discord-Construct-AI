@@ -9,7 +9,6 @@ import GenSettingsMenu from '../components/GenSettingsMenu';
 
 const DiscordBot = () => {
   const [botToken, setBotToken] = useState('');
-  const [channelList, setChannelList] = useState([]);
   const [isOn, setIsOn] = useState(false);
   const [availableChannels, setAvailableChannels] = useState([]);
   const [selectedCharacter, setSelectedCharacter] = useState('');
@@ -19,7 +18,7 @@ const DiscordBot = () => {
   const [activeServerId, setActiveServerId] = useState(null);
   const [selectedChannels, setSelectedChannels] = useState(new Set());
   const [botInvite, setBotInvite] = useState('');
-  const channels = channelList.join(', ');
+  const [appId, setAppId] = useState('0');
 
   const handleToggle = async () => {
     if (isOn) {
@@ -33,15 +32,9 @@ const DiscordBot = () => {
 
   const settingsPanelRef = useRef(null);
 
-  const handleChannelsChange = (event) => {
-    const newChannels = event.target.value.split(',').map(channel => channel.trim());
-    setChannelList(newChannels);
-    setSelectedChannels(new Set(newChannels));
-  };
-
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getBotInvite();
+      const response = await getBotInvite(appId);
       setBotInvite(response);
     };
     fetchData();
@@ -53,7 +46,6 @@ const DiscordBot = () => {
       setIsOn(response);
       const data = await getDiscordSettings();
       setBotToken(data.data.token);
-      setChannelList(data.data.channels);
       setSelectedChannels(new Set(data.data.channels));
       if (response) {
         const channelsData = await getAvailableChannels();
@@ -99,6 +91,7 @@ const DiscordBot = () => {
     var hordeModel = localStorage.getItem('hordeModel');
     let data = {
       "token" : botToken,
+      "appId" : "0",
       "channels" : [...selectedChannels],
       "charId" : selectedCharacter,
       "endpoint" : endpoint,
@@ -121,8 +114,6 @@ const DiscordBot = () => {
         // Add channel to selected channels
         updatedChannels.add(channelId);
       }
-      // Update the channelList state to reflect the selected channels
-      setChannelList([...updatedChannels]);
       return updatedChannels;
     });
   };
@@ -152,10 +143,10 @@ const DiscordBot = () => {
               <input type="text" value={botToken} onChange={(event) => setBotToken(event.target.value)} />
             </div>
           </div>
-          <div className="settings-box" id='channel'>
-            <h2 className='text-selected-text text-xl font-bold'>Visible Channels</h2>
+          <div className="settings-box" id='appid'>
+            <h2 className='text-selected-text text-xl font-bold'>Discord Application ID</h2>
             <div className="input-group">
-              <input type="text" value={channels} onChange={handleChannelsChange} />
+              <input type="text" value={appId} onChange={(event) => setAppId(event.target.value)} />
             </div>
           </div>
           <div className="settings-box" id='available-channels'>
