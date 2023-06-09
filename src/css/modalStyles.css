@@ -1,0 +1,108 @@
+/* ---- classes ---- */ 
+.modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background-color: none;
+  flex-direction: column;
+	align-items: left;
+	justify-content: center;
+	z-index: 9999; /* make sure the modal is on top of other content */
+	overflow-y: hidden;
+  }
+  
+  .modal-content { /*I absolutely hate hardcoding locations but I couldn't get it to work otherwise */
+    width: 25%;
+    height: 60%;
+    padding: 10px;
+    margin-left: 129px;
+    margin-bottom: -15px;
+	  background-color: rgba(18, 18, 18, 0.737);
+	  border-radius: 20px;
+	  border: 2px solid rgba(159, 159, 159, 0.582);
+	  backdrop-filter: blur(3px);
+    font-size: 2rem;
+  }
+
+  /* ---- IDs ---- */
+  #messagepreview_container {
+    background-color: rgba(52, 52, 52, 0.258);
+    height: 40%;
+    width: 100%;
+    border-radius: 10px;
+    top: 100%
+  }
+
+  #incomingmessage_preview_placeholder,
+  #outgoingmessage_preview_placeholder {
+    font-size: 13px;
+    position: relative;
+    flex-direction: row;
+    align-items: flex-start;
+    transform: translate(6px, -32px);
+  }
+
+  #senderPreview img,
+  #AIPreview img {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 6px;
+  }
+
+  #AIPreview {
+    transform: translate(0, -35px);
+  }
+
+  #senderName,
+  #AIName {
+    position: relative;
+    display:flex;
+    flex-direction: column;
+    transform: translate(-100px, 25px);
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  #avatarchange {
+    display: flex;
+    flex-direction: row;
+    margin-top: 0px;
+    margin-left: 20px;
+    position: absolute;
+    top: 190px;
+    left: -5px;
+  }
+  
+  #senderAvatar_change {
+    margin-right: 80px;
+  }
+
+  .avatarchange_text {
+    position: relative;
+    font-size: 18px;
+    transform: translate(0px, 100px);
+    display: flex;
+    flex-direction: row;
+  }
+
+  #botname {
+    transform: translate(-80px, 0px);
+  }
+  
+  #botAvatar_change, 
+  #senderAvatar_change {
+   height: 100px;
+   width: 100px;
+  }
+  
+  #botAvatar_change:hover, 
+  #senderAvatar_change:hover {
+    cursor: pointer;
+  }
+
+  
+  

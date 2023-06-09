@@ -1,0 +1,26 @@
+.modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+  right: 0;
+  bottom: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.39); /* semi-transparent black background */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999; /* make sure the modal is on top of other content */
+	overflow-y: scroll;
+  }
+  
+  .modal-content {
+    width: 70%;
+    height: 70%;
+    background-color: #282c34;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
