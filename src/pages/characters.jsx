@@ -120,7 +120,6 @@ const Characters = () => {
       console.log("Character selection failed.");
     } else {
       console.log("Selected Character set to:", item);
-      window.location.href = '/chat';
     }
   };
 
