@@ -184,7 +184,10 @@ const DiscordBot = () => {
               <CurrentCharacter Character={selectedCharacter} />
             </div>
           }
-          <GenSettingsMenu />
+          <div className="settings-box" id='settings'>
+            <h2 className="text-xl font-bold">Generation Settings</h2>
+            <GenSettingsMenu />
+          </div>
         </div>
         <div className="fixed bottom-4 right-4 items-center flex flex-col mt-4">
             <button className="aspect-w-1 aspect-h-1 rounded-lg shadow-md backdrop-blur-md p-2 w-16 border-2 border-solid border-gray-500 outline-none justify-center cursor-pointer transition-colors hover:bg-blue-600 text-selected-text" onClick={(event) => saveData()}>

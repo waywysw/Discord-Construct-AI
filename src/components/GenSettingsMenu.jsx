@@ -118,8 +118,7 @@ const GenSettingsMenu = () => {
     };
 
     return (
-        <div className="settings-box bold">
-        <h1 className="text-xl font-bold">Generation Settings</h1>
+        <div className="">
           {invalidEndpoint ? (
             <div className="relative flex flex-col justify-center text-white">
               <h1 className="mb-4 text-2xl">Invalid Endpoint</h1>

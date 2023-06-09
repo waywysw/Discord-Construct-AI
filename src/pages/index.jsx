@@ -11,7 +11,10 @@ const Home = () => {
         <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4">
           <BackgroundSelector />
           <EndpointSelector />
-          <GenSettingsMenu />
+          <div className="settings-box" id='settings'>
+            <h2 className="text-xl font-bold">Generation Settings</h2>
+            <GenSettingsMenu />
+          </div>
         </div>
       </div>
     </div>
