@@ -124,8 +124,8 @@ const DiscordBot = () => {
       <div className='settings-panel' ref={settingsPanelRef}>
         <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4">
           <div className="settings-box" id='on-switch'>
+            <h2 className='text-xl font-bold mb-4 text-center mx-auto'>On/Off Switch</h2>
             <RxDiscordLogo className="discord-logo" />
-            <h2 className='text-selected-text font-bold'>On/Off Switch</h2>
             <button className={`discord-button ${isOn ? 'discord-button-on' : ''}`} onClick={handleToggle}>
               {isOn ? 'ON' : 'OFF'}
             </button>
@@ -138,19 +138,19 @@ const DiscordBot = () => {
             }
           </div>
           <div className="settings-box" id='bot-token'>
-            <h2 className='text-selected-text text-xl font-bold'>Discord Bot Token</h2>
+            <h2 className='text-xl font-bold mb-4 text-center mx-auto'>Discord Bot Token</h2>
             <div className="input-group">
               <input type="text" value={botToken} onChange={(event) => setBotToken(event.target.value)} />
             </div>
           </div>
           <div className="settings-box" id='appid'>
-            <h2 className='text-selected-text text-xl font-bold'>Discord Application ID</h2>
+            <h2 className='text-xl font-bold mb-4 text-center mx-auto'>Discord Application ID</h2>
             <div className="input-group">
               <input type="text" value={appId} onChange={(event) => setAppId(event.target.value)} />
             </div>
           </div>
           <div className="settings-box" id='available-channels'>
-            <h2 className='text-selected-text text-xl font-bold'>Available Channels</h2>
+            <h2 className='text-xl font-bold mb-4 text-center mx-auto'>Available Channels</h2>
             {availableChannels &&
               availableChannels.map(server => (
                 <div key={server.id} className='bg-selected-bb-color p-4 rounded-lg shadow-md border-2 border-solid border-gray-500'>
@@ -180,12 +180,12 @@ const DiscordBot = () => {
           </div>
           {selectedCharacter && 
             <div className="settings-box" id='character'>
-              <h2 className='text-selected-text text-xl font-bold'>Currently Selected Character</h2>
+              <h2 className='text-xl font-bold mb-4 text-center mx-auto'>Currently Selected Character</h2>
               <CurrentCharacter Character={selectedCharacter} />
             </div>
           }
           <div className="settings-box" id='settings'>
-            <h2 className="text-xl font-bold">Generation Settings</h2>
+            <h2 className="text-xl font-bold mb-4 text-center mx-auto">Generation Settings</h2>
             <GenSettingsMenu />
           </div>
         </div>

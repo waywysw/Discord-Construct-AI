@@ -76,9 +76,9 @@ const EndpointSelector = () => {
   
     return (
       <>
-        <div className="centered settings-box">
+        <div className="settings-box">
           <div className='mb-4'>
-            <h1 className='text-xl font-bold'>Text Generation Endpoint</h1>
+            <h2 className='text-xl font-bold mb-4 text-center mx-auto'>Text Generation Endpoint</h2>
           </div>
         <div id='endpoint-container'>
           <form onSubmit={handleConnectClick}>

@@ -59,8 +59,8 @@ const BackgroundSelector = ({ onBackgroundChange }) => {
   };
 
   return (
-    <div className="centered settings-box">
-      <h1 className="text-xl font-bold mb-4 text-center mx-auto">Background Selector</h1>
+    <div className="settings-box">
+      <h2 className="text-xl font-bold mb-4 text-center mx-auto">Background Selector</h2>
       <div className="grid grid-cols-3 gap-4">
         {backgrounds.map((bg) => (
           <div key={bg} className="relative mt-2">

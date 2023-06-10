@@ -865,6 +865,9 @@ let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBi
 ] });
 
 disClient.commands = new Collection();
+//Authors Note Initialization
+disClient.authorsNote = null;
+disClient.authorsNoteDepth = 5;
 
 let botReady = false;
 let botSettings;
@@ -914,6 +917,10 @@ app.get('/discord-bot/start', (req, res) => {
           GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
           GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
         ] });
+        disClient.commands = new Collection();
+        //Authors Note Initialization
+        disClient.authorsNote = null;
+        disClient.authorsNoteDepth = 5;
       });
       res.send('Bot started');
       botReady = true;
@@ -938,6 +945,10 @@ app.get('/discord-bot/stop', (req, res) => {
         GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
       ] });
+      disClient.commands = new Collection();
+      //Authors Note Initialization
+      disClient.authorsNote = null;
+      disClient.authorsNoteDepth = 5;
       botReady = false;
       res.send('Bot stopped');
   } else {
@@ -1065,7 +1076,6 @@ disClient.on('messageCreate', async (message) => {
   }
 });
 
-
 async function doCharacterChat(message){
   let charId = botSettings.charId;
   let endpoint = botSettings.endpoint;
@@ -1121,6 +1131,17 @@ async function getPrompt(charId, message){
   const createdPrompt = basePrompt + convo + character.name + ':';
   return createdPrompt;
 };
+
+function insertAtLine(prompt, line, text) {
+  // Split the string into lines
+  let lines = prompt.split('\n');
+
+  // Insert the text at the specified line
+  lines.splice(line, 0, text);
+
+  // Join the lines back together
+  return lines.join('\n');
+}
 
 function parseTextEnd(text) {
   return text.split("\n").map(line => line.trim());
