@@ -1018,6 +1018,12 @@ disClient.on('messageCreate', async (message) => {
   // If the message does not start with the command prefix and it's channel id is in botSettings.channels, return.
   if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id)) return;
   if (message.content.startsWith('.')) return;
+  if (message.content.startsWith('-')){
+    let cleanContent = message.cleanContent.substring(1); // Remove the leading '-'
+    let text = `${message.author.username}:${cleanContent}\n`;
+    await saveConversation(message, botSettings.charId, text);
+    return;
+}
 
   // If the message sender is a bot, only respond 50% of the time. Prevents looping with other bots.
   if (message.author.bot && Math.random() >= 0.5) return;
@@ -1081,16 +1087,10 @@ async function doCharacterChat(message){
   if(endpointType === 'Kobold' || endpointType === 'Horde'){
     generatedText = results['text'];
   }
+  let text = `${message.author.username}:${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`;
+  await saveConversation(message, charId, text);
   let response = parseTextEnd(generatedText)
   console.log("Response: ", response);
-  const logName = `${message.channel.id}-${charId}.log`;
-  const pathName = path.join('./public/discord/logs/', logName);
-
-  // Check if the file exists, and if it doesn't, create it
-  if (!fs.existsSync(pathName)) {
-    fs.writeFileSync(pathName, '', { flag: 'wx' });
-  }
-  fs.appendFileSync(pathName, `${message.author.username}:${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
     message.reply(response[0].replace('<USER>', message.author.username));
@@ -1099,6 +1099,17 @@ async function doCharacterChat(message){
     message.channel.send(response[0].replace('<USER>', message.author.username));
   };
 };
+
+async function saveConversation(message, charId, text){
+  const logName = `${message.channel.id}-${charId}.log`;
+  const pathName = path.join('./public/discord/logs/', logName);
+
+  // Check if the file exists, and if it doesn't, create it
+  if (!fs.existsSync(pathName)) {
+    fs.writeFileSync(pathName, '', { flag: 'wx' });
+  }
+  fs.appendFileSync(pathName, text);
+}
 
 async function getPrompt(charId, message){
   let channelID = message.channel.id;
