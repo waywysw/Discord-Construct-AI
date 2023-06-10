@@ -13,7 +13,7 @@ const command = {
         await interaction.deferReply();
         const depth = interaction.options.getInteger('depth');
         GlobalState.authorsNoteDepth = depth;
-        await interaction.editReply(`Authors note depth set to ${GlobalState.authorsNoteDepth}!`);
+        await interaction.editReply(`Authors note depth set to: ${GlobalState.authorsNoteDepth}!`);
     },
 };
 
