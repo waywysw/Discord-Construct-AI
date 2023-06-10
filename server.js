@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { createServer } from 'vite';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 import multer from 'multer';
@@ -14,7 +14,7 @@ import extract from 'png-chunks-extract';
 import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import jimp from 'jimp';
-import { Client, GatewayIntentBits, Collection } from 'discord.js';
+import { Client, GatewayIntentBits, Collection, REST, Routes } from 'discord.js';
 import readline from 'readline';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -888,8 +888,49 @@ disClient.once('ready', () => {
   setDiscordBotInfo();
 });
 
-const foldersPath = path.join('./src/discord/', 'commands');
-const commandFolders = fs.readdirSync(foldersPath)
+const commandsPath = path.join(__dirname, 'src/discord/commands');
+
+// Check if the directory exists
+if (!fs.existsSync(commandsPath)) {
+    // If the directory doesn't exist, create it
+    fs.mkdirSync(commandsPath, { recursive: true });
+}
+
+const commandFilesAndFolders = fs.readdirSync(commandsPath);
+
+const loadCommands = async () => {
+  const allCommandFiles = [];
+
+  for (const fileOrFolder of commandFilesAndFolders) {
+    const fullPath = path.join(commandsPath, fileOrFolder);
+
+    // Check if the path is a directory or a file
+    if (fs.statSync(fullPath).isDirectory()) {
+      // If it's a directory, read all .js files in it
+      const commandFilesInFolder = fs.readdirSync(fullPath).filter(file => file.endsWith('.js')).map(file => path.join(fullPath, file));
+      allCommandFiles.push(...commandFilesInFolder);
+    } else if (fileOrFolder.endsWith('.js')) {
+      // If it's a .js file, add it to the allCommandFiles array
+      allCommandFiles.push(fullPath);
+    }
+  }
+
+  for (const filePath of allCommandFiles) {
+    const fileURL = pathToFileURL(filePath); // convert the file path to a URL
+    const command = await import(fileURL);
+    console.log(`Loading command from ${fileURL}`);
+    if (!command || !command.default.data || !command.default.data.name) {
+      console.log(`[WARNING] Failed to load command from ${fileURL}`);
+      continue;  // Skip this command and proceed to the next one
+    }
+    // Set a new item in the Collection with the key as the command name and the value as the exported module
+    if (command) {
+      disClient.commands.set(command.default.data.name, command.default);
+    } else {
+      console.log(`[WARNING] The command at ${filePath} is either not defined or missing a required "data" or "execute" property.`);
+    }
+  }
+}
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled promise rejection:', reason);
@@ -897,6 +938,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 app.get('/discord-bot/start', (req, res) => {
   if (!botReady) {
+    loadCommands();
     if(!botSettings.token || !botSettings.channels || !botSettings.charId || !botSettings.endpoint || !botSettings.endpointType || !botSettings.settings) {
       res.status(500).send({
         message: 'Bot not started. Missing required settings.',
@@ -924,6 +966,7 @@ app.get('/discord-bot/start', (req, res) => {
       });
       res.send('Bot started');
       botReady = true;
+      console.log('Bot started!')
     } catch (error) {
       console.error('Failed to start bot.', error);
       res.status(500).send({ 
@@ -933,6 +976,7 @@ app.get('/discord-bot/start', (req, res) => {
     }
   } else {
       res.send('Bot already started');
+      console.log('Bot already started!');
       botReady = true;
   }
 });
@@ -951,8 +995,11 @@ app.get('/discord-bot/stop', (req, res) => {
       disClient.authorsNoteDepth = 5;
       botReady = false;
       res.send('Bot stopped');
+      console.log('Bot stopped!')
   } else {
       res.send('Bot already stopped');
+      botReady = false;
+      console.log('Bot already stopped!');
   }
 });
 
@@ -1021,7 +1068,7 @@ const messageQueue = [];
 let isProcessing = false;
 
 disClient.on('messageCreate', async (message) => {
-  const prefix = '!'; // Define your command prefix
+  const prefix = '/'; // Define your command prefix
 
   // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id) return;
@@ -1128,7 +1175,10 @@ async function getPrompt(charId, message){
   let currentMessage = `${message.author.username}: ${message.cleanContent}`;
   const basePrompt = character.name + "'s Persona:\n" + character.description + '\nScenario:' + character.scenario + '\nExample Dialogue:\n' + character.mes_example.replace('{{CHAR}}', character.name).replace('<USER>', message.author.username) + '\n';
   const convo = 'Current Conversation:\n' + history + `\n`+ currentMessage + '\n';
-  const createdPrompt = basePrompt + convo + character.name + ':';
+  let createdPrompt = basePrompt + convo + character.name + ':';
+  if(!botSettings.authorsNote === null){
+    createdPrompt = insertAtLine(createdPrompt, botSettings.authorsNoteDepth, botSettings.authorsNote);
+  }
   return createdPrompt;
 };
 
