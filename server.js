@@ -1087,10 +1087,10 @@ async function doCharacterChat(message){
   if(endpointType === 'Kobold' || endpointType === 'Horde'){
     generatedText = results['text'];
   }
-  let text = `${message.author.username}:${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`;
-  await saveConversation(message, charId, text);
   let response = parseTextEnd(generatedText)
   console.log("Response: ", response);
+  let text = `${message.author.username}:${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`;
+  await saveConversation(message, charId, text);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
     message.reply(response[0].replace('<USER>', message.author.username));
