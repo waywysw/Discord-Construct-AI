@@ -18,7 +18,7 @@ const DiscordBot = () => {
   const [activeServerId, setActiveServerId] = useState(null);
   const [selectedChannels, setSelectedChannels] = useState(new Set());
   const [botInvite, setBotInvite] = useState('');
-  const [appId, setAppId] = useState('0');
+  const [appId, setAppId] = useState('');
 
   const handleToggle = async () => {
     if (isOn) {
@@ -46,6 +46,7 @@ const DiscordBot = () => {
       setIsOn(response);
       const data = await getDiscordSettings();
       setBotToken(data.data.token);
+      setAppId(data.data.appId);
       setSelectedChannels(new Set(data.data.channels));
       if (response) {
         const channelsData = await getAvailableChannels();
@@ -91,7 +92,7 @@ const DiscordBot = () => {
     var hordeModel = localStorage.getItem('hordeModel');
     let data = {
       "token" : botToken,
-      "appId" : "0",
+      "appId" : appId,
       "channels" : [...selectedChannels],
       "charId" : selectedCharacter,
       "endpoint" : endpoint,

@@ -930,7 +930,51 @@ const loadCommands = async () => {
       console.log(`[WARNING] The command at ${filePath} is either not defined or missing a required "data" or "execute" property.`);
     }
   }
+  if(botSettings.appId.length > 1){
+    registerCommandsGlobally();
+    // registerCommandsGuild();
+  }
 }
+
+const registerCommandsGlobally = async () => {
+  const commands = []; // array to hold your commands
+  disClient.commands.forEach(command => commands.push(command.data.toJSON()));
+
+  const rest = new REST().setToken(botSettings.token);
+
+  try {
+      console.log('Started refreshing application (/) commands.');
+
+      await rest.put(
+          Routes.applicationCommands(botSettings.appId),
+          { body: commands },
+      );
+
+      console.log('Successfully reloaded application (/) commands.');
+  } catch (error) {
+      console.error(error);
+  }
+};
+
+// const registerCommandsGuild = async () => {
+//   const commands = []; // array to hold your commands
+//   disClient.commands.forEach(command => commands.push(command.data.toJSON()));
+
+//   const rest = new REST().setToken(botSettings.token);
+
+//   try {
+//       console.log('Started refreshing guild application (/) commands.');
+
+//       await rest.put(
+//           Routes.applicationCommands(botSettings.appId, 1113646198709026896),
+//           { body: commands },
+//       );
+
+//       console.log('Successfully reloaded guild application (/) commands.');
+//   } catch (error) {
+//       console.error(error);
+//   }
+// };
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled promise rejection:', reason);
