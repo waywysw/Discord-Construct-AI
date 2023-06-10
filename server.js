@@ -1196,6 +1196,27 @@ async function saveConversation(message, charId, text){
   fs.appendFileSync(pathName, text);
 }
 
+function removeLastLines(filename, numLinesToRemove) {
+  // Read the file into a string
+  let fileContent = fs.readFileSync(filename, 'utf-8');
+
+  // Split the string into lines
+  let lines = fileContent.split('\n');
+
+  // Check if the number of lines to remove is greater than the total number of lines
+  if (numLinesToRemove >= lines.length) {
+    // If it is, just clear the file
+    fs.writeFileSync(filename, '', 'utf-8');
+  } else {
+    // Otherwise, remove the last x lines
+    lines.splice(lines.length - numLinesToRemove, numLinesToRemove);
+  
+    // Join the lines back together and write back to the file
+    let newFileContent = lines.join('\n');
+    fs.writeFileSync(filename, newFileContent, 'utf-8');
+  }
+}
+
 async function getPrompt(charId, message){
   let channelID = message.channel.id;
   let history = await getHistory(charId, channelID, 20);
@@ -1228,6 +1249,10 @@ function insertAtLineFromEnd(prompt, lineFromEnd, text) {
 function parseTextEnd(text) {
   return text.split("\n").map(line => line.trim());
 }
+
+async function regenerateReply(){
+
+};
 
 async function getHistory(charId, channel, lines){
   let logName = `${channel}-${charId}.log`;
