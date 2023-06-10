@@ -5,7 +5,8 @@ const command = {
 		.setName('ping')
 		.setDescription('Sends a "Pong!" message'),
 	async execute(interaction) {
-		await interaction.reply('Pong!')
+		await interaction.deferReply();
+		await interaction.editReply('Pong!')
 	},
 };
 

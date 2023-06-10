@@ -1111,22 +1111,33 @@ app.get('/discord-bot/id', (req, res) => {
 const messageQueue = [];
 let isProcessing = false;
 
-disClient.on('messageCreate', async (message) => {
-  const prefix = '/'; // Define your command prefix
+disClient.on('interactionCreate', async interaction => {
+  if (!interaction.isCommand()) return;
 
+  const command = disClient.commands.get(interaction.commandName);
+
+  if (!command) return;
+
+  try {
+      await command.execute(interaction);
+  } catch (error) {
+      console.error(error);
+      await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+  }
+});
+
+disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id) return;
-
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
-  if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id) && !message.guild === null) return;
+  if (!botSettings.channels.includes(message.channel.id) && !message.guild === null) return;
   if (message.content.startsWith('.')) return;
   if (message.content.startsWith('-')){
     let cleanContent = message.cleanContent.substring(1); // Remove the leading '-'
     let text = `${message.author.username}:${cleanContent}\n`;
     await saveConversation(message, botSettings.charId, text);
     return;
-}
-
+  }
   // If the message sender is a bot, only respond 50% of the time. Prevents looping with other bots.
   if (message.author.bot && Math.random() >= 0.5) return;
 
@@ -1140,28 +1151,9 @@ disClient.on('messageCreate', async (message) => {
   while (messageQueue.length > 0) {
     isProcessing = true;
     const currentMessage = messageQueue.shift();
-
-    // Extract command name and arguments from the message
-    const args = currentMessage.content.slice(prefix.length).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
-
-    // Get the command object from the Collection
-    const command = disClient.commands.get(commandName);
-
-    // If the command does not exist, return
-    if (!command){
-      if (botSettings.channels.includes(currentMessage.channel.id) || currentMessage.guild === null){
-        currentMessage.channel.sendTyping();
-        await doCharacterChat(currentMessage);
-      }
-    } else {
-      // Execute the command
-      try {
-        await command.execute(currentMessage, args);
-      } catch (error) {
-        console.error(`Failed to execute command "${commandName}":`, error);
-        await currentMessage.reply('There was an error trying to execute that command!');
-      }
+    if (botSettings.channels.includes(currentMessage.channel.id) || currentMessage.guild === null){
+      currentMessage.channel.sendTyping();
+      await doCharacterChat(currentMessage);
     }
     isProcessing = false;
   }
