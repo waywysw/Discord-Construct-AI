@@ -1087,9 +1087,14 @@ async function doCharacterChat(message){
   if (!fs.existsSync(pathName)) {
     fs.writeFileSync(pathName, '', { flag: 'wx' });
   }
-
   fs.appendFileSync(pathName, `${message.author.username}:${message.content}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`);
-  message.channel.send(response[0].replace('<USER>', message.author.username));
+  if (Math.random() < 0.75) {
+    // 75% chance to reply directly to the message
+    message.reply(response[0].replace('<USER>', message.author.username));
+  } else {
+    // 25% chance to just send a message to the channel
+    message.channel.send(response[0].replace('<USER>', message.author.username));
+  };
 };
 
 async function getPrompt(charId, message){
