@@ -1015,8 +1015,8 @@ disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id) return;
 
-  // If the message does not start with the command prefix and it's channel id is in botSettings.channels, return.
-  if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id)) return;
+  // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
+  if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id) && !message.guild === null) return;
   if (message.content.startsWith('.')) return;
   if (message.content.startsWith('-')){
     let cleanContent = message.cleanContent.substring(1); // Remove the leading '-'
@@ -1048,7 +1048,7 @@ disClient.on('messageCreate', async (message) => {
 
     // If the command does not exist, return
     if (!command){
-      if (botSettings.channels.includes(currentMessage.channel.id) || currentMessage.channel.type === 'DM'){
+      if (botSettings.channels.includes(currentMessage.channel.id) || currentMessage.guild === null){
         currentMessage.channel.sendTyping();
         await doCharacterChat(currentMessage);
       }
