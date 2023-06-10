@@ -1,5 +1,6 @@
 const GlobalState = {
     authorsNote: '',
-    authorsNoteDepth : 0
+    authorsNoteDepth : 5,
+    sysMes: '',
 }
 export default GlobalState;

@@ -1206,17 +1206,20 @@ async function getPrompt(charId, message){
   let createdPrompt = basePrompt + convo + character.name + ':';
   console.log("Authors Note: ", GlobalState.authorsNote);
   if(GlobalState.authorsNote.length > 0){
-    createdPrompt = insertAtLine(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
+    createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
   }
   return createdPrompt;
 };
 
-function insertAtLine(prompt, line, text) {
+function insertAtLineFromEnd(prompt, lineFromEnd, text) {
   // Split the string into lines
   let lines = prompt.split('\n');
 
-  // Insert the text at the specified line
-  lines.splice(line, 0, text);
+  // Calculate the index where to insert the text
+  let index = lines.length - lineFromEnd;
+
+  // Insert the text at the calculated index
+  lines.splice(index, 0, text);
 
   // Join the lines back together
   return lines.join('\n');
