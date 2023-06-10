@@ -16,6 +16,7 @@ import encode from 'png-chunks-encode';
 import jimp from 'jimp';
 import { Client, GatewayIntentBits, Collection, REST, Routes } from 'discord.js';
 import readline from 'readline';
+import GlobalState from './src/discord/GlobalState.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -865,9 +866,6 @@ let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBi
 ] });
 
 disClient.commands = new Collection();
-//Authors Note Initialization
-disClient.authorsNote = null;
-disClient.authorsNoteDepth = 5;
 
 let botReady = false;
 let botSettings;
@@ -1004,9 +1002,6 @@ app.get('/discord-bot/start', (req, res) => {
           GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
         ] });
         disClient.commands = new Collection();
-        //Authors Note Initialization
-        disClient.authorsNote = null;
-        disClient.authorsNoteDepth = 5;
       });
       res.send('Bot started');
       botReady = true;
@@ -1034,9 +1029,6 @@ app.get('/discord-bot/stop', (req, res) => {
         GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
       ] });
       disClient.commands = new Collection();
-      //Authors Note Initialization
-      disClient.authorsNote = null;
-      disClient.authorsNoteDepth = 5;
       botReady = false;
       res.send('Bot stopped');
       console.log('Bot stopped!')
@@ -1212,8 +1204,9 @@ async function getPrompt(charId, message){
   const basePrompt = character.name + "'s Persona:\n" + character.description + '\nScenario:' + character.scenario + '\nExample Dialogue:\n' + character.mes_example.replace('{{CHAR}}', character.name).replace('<USER>', message.author.username) + '\n';
   const convo = 'Current Conversation:\n' + history + `\n`+ currentMessage + '\n';
   let createdPrompt = basePrompt + convo + character.name + ':';
-  if(!botSettings.authorsNote === null){
-    createdPrompt = insertAtLine(createdPrompt, botSettings.authorsNoteDepth, botSettings.authorsNote);
+  console.log("Authors Note: ", GlobalState.authorsNote);
+  if(GlobalState.authorsNote.length > 0){
+    createdPrompt = insertAtLine(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
   }
   return createdPrompt;
 };

@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
+import GlobalState from '../GlobalState.js';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -9,11 +10,10 @@ const command = {
                 .setDescription('The depth for the authors note')
                 .setRequired(true)),
     async execute(interaction) {
-        const client = interaction.client;
         await interaction.deferReply();
         const depth = interaction.options.getInteger('depth');
-        client.authorsNoteDepth = depth;
-        await interaction.editReply(`Authors note depth set to ${client.authorsNoteDepth}!`);
+        GlobalState.authorsNoteDepth = depth;
+        await interaction.editReply(`Authors note depth set to ${GlobalState.authorsNoteDepth}!`);
     },
 };
 
