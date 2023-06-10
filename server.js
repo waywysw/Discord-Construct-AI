@@ -1019,6 +1019,9 @@ disClient.on('messageCreate', async (message) => {
   if (!message.content.startsWith(prefix) && !botSettings.channels.includes(message.channel.id)) return;
   if (message.content.startsWith('.')) return;
 
+  // If the message sender is a bot, only respond 50% of the time. Prevents looping with other bots.
+  if (message.author.bot && Math.random() >= 0.5) return;
+
   // Add message to the queue
   messageQueue.push(message);
 
@@ -1087,7 +1090,7 @@ async function doCharacterChat(message){
   if (!fs.existsSync(pathName)) {
     fs.writeFileSync(pathName, '', { flag: 'wx' });
   }
-  fs.appendFileSync(pathName, `${message.author.username}:${message.content}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`);
+  fs.appendFileSync(pathName, `${message.author.username}:${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
     message.reply(response[0].replace('<USER>', message.author.username));
@@ -1101,7 +1104,7 @@ async function getPrompt(charId, message){
   let channelID = message.channel.id;
   let history = await getHistory(charId, channelID, 20);
   let character = await getCharacter(charId);
-  let currentMessage = `${message.author.username}: ${message.content}`;
+  let currentMessage = `${message.author.username}: ${message.cleanContent}`;
   const basePrompt = character.name + "'s Persona:\n" + character.description + '\nScenario:' + character.scenario + '\nExample Dialogue:\n' + character.mes_example.replace('{{CHAR}}', character.name).replace('<USER>', message.author.username) + '\n';
   const convo = 'Current Conversation:\n' + history + `\n`+ currentMessage + '\n';
   const createdPrompt = basePrompt + convo + character.name + ':';
