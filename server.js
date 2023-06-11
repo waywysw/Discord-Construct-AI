@@ -1219,17 +1219,34 @@ function removeLastLines(filename, numLinesToRemove) {
 
 async function getPrompt(charId, message){
   let channelID = message.channel.id;
-  let history = await getHistory(charId, channelID, 20);
+  let history = await getHistory(charId, channelID, GlobalState.historyLines);
   let character = await getCharacter(charId);
-  let currentMessage = `${message.author.username}: ${message.cleanContent}`;
-  const basePrompt = character.name + "'s Persona:\n" + character.description + '\nScenario:' + character.scenario + '\nExample Dialogue:\n' + character.mes_example.replace('{{CHAR}}', character.name).replace('<USER>', message.author.username) + '\n';
-  const convo = 'Current Conversation:\n' + history + `\n`+ currentMessage + '\n';
+  let currentMessage = `${cleanUsername(message.author.username)}: ${message.cleanContent}`;
+  const convo = history + `\n`+ currentMessage + '\n';
+  let basePrompt = '';
+  if(character.name.length > 1){
+    basePrompt += character.name;
+  }
+
+  if(character.description.length > 1){
+    basePrompt += ":\n" + character.description + '\n';
+  }
+
+  if(character.scenario.length > 1){
+    basePrompt += 'Scenario:\n' + character.scenario + '\n';
+  }
+
+  if(character.mes_example.length > 1){
+    basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
+  }
   let createdPrompt = basePrompt + convo + character.name + ':';
-  console.log("Authors Note: ", GlobalState.authorsNote);
   if(GlobalState.authorsNote.length > 0){
     createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
   }
-  return createdPrompt;
+  createdPrompt = cleanEmoji(createdPrompt);
+  return createdPrompt.replace(/{{char}}/g, character.name)
+                    .replace(/{{user}}/g, message.author.username)
+                    .replace(/\r/g, '');
 };
 
 function insertAtLineFromEnd(prompt, lineFromEnd, text) {
@@ -1250,9 +1267,22 @@ function parseTextEnd(text) {
   return text.split("\n").map(line => line.trim());
 }
 
+function cleanUsername(username) {
+  // Remove leading characters
+  let cleaned = username.replace(/^[._-]+/, '');
+
+  // Remove trailing characters
+  cleaned = cleaned.replace(/[._-]+$/, '');
+
+  return cleaned;
+}
 async function regenerateReply(){
 
 };
+
+function cleanEmoji(emojiParagraph) {
+  return emojiParagraph.replace(/<:(\w+):\d+>/g, ':$1:');
+}
 
 async function getHistory(charId, channel, lines){
   let logName = `${channel}-${charId}.log`;

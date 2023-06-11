@@ -13,7 +13,7 @@ const command = {
         await interaction.deferReply();
         const message = interaction.options.getString('authorsnote');
         GlobalState.authorsNote = message;
-        await interaction.editReply(`Authors note set to: **${GlobalState.authorsNote}**`)
+        await interaction.editReply(`**Author's Note:**\n ${GlobalState.authorsNote}`)
 	},
 };
 
