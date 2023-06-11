@@ -1162,7 +1162,7 @@ async function doCharacterChat(message){
   let results;
   console.log("Generating text...")
   try{
-    results = await generateText(endpointType, { endpoint: endpoint, configuredName: message.author.username, prompt: prompt, settings: settings, hordeModel: hordeModel });
+    results = await generateText(endpointType, { endpoint: endpoint, configuredName: cleanUsername(message.author.username), prompt: prompt, settings: settings, hordeModel: hordeModel });
   } catch (error) {
     console.error('Error:', error);
     return;
@@ -1174,7 +1174,7 @@ async function doCharacterChat(message){
   }
   let response = parseTextEnd(generatedText)
   console.log("Response: ", response);
-  let text = `${message.author.username}:${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`;
+  let text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`;
   await saveConversation(message, charId, text);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
@@ -1227,11 +1227,9 @@ async function getPrompt(charId, message){
   if(character.name.length > 1){
     basePrompt += character.name;
   }
-
   if(character.description.length > 1){
     basePrompt += ":\n" + character.description + '\n';
   }
-
   if(character.scenario.length > 1){
     basePrompt += 'Scenario:\n' + character.scenario + '\n';
   }
@@ -1245,7 +1243,7 @@ async function getPrompt(charId, message){
   }
   createdPrompt = cleanEmoji(createdPrompt);
   return createdPrompt.replace(/{{char}}/g, character.name)
-                    .replace(/{{user}}/g, message.author.username)
+                    .replace(/{{user}}/g, cleanUsername(message.author.username))
                     .replace(/\r/g, '');
 };
 
