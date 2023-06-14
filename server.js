@@ -14,7 +14,7 @@ import extract from 'png-chunks-extract';
 import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import jimp from 'jimp';
-import { Client, GatewayIntentBits, Collection, REST, Routes } from 'discord.js';
+import { Client, GatewayIntentBits, Collection, REST, Routes, Partials } from 'discord.js';
 import readline from 'readline';
 import GlobalState from './src/discord/GlobalState.js';
 
@@ -697,7 +697,7 @@ app.post('/textgen/:endpointType', async (req, res) => {
 });
 
 
-const generateText = async (endpointType, { endpoint, configuredName, prompt, settings, hordeModel }) => {
+const generateText = async (endpointType, { endpoint, configuredName, prompt, settings, hordeModel }, stopList = null) => {
   // Rest of the code remains the same
   let response;
   let results;
@@ -708,10 +708,16 @@ const generateText = async (endpointType, { endpoint, configuredName, prompt, se
   if (endpoint.endsWith('/api')) {
     endpoint = endpoint.slice(0, -4);
   }
+  let stops;
+  if(stopList !== null){
+    stops = stopList;
+  } else {
+    stops = [`${configuredName}:`, 'You:'];
+  }
   switch (endpointType) {
     case 'Kobold':
       try{
-        const koboldPayload = { prompt, stop_sequence: [`${configuredName}:`, 'You:'],  ...settings };
+        const koboldPayload = { prompt, stop_sequence: stops, frmtrmblln: true,  ...settings };
         response = await axios.post(`${endpoint}/api/v1/generate`, koboldPayload);
         if (response.status === 200) {
           results = response.data;
@@ -862,8 +868,8 @@ app.post('/text/status', async (req, res) => {
 let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
   GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
   GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
-  GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
-] });
+  GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
+], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] });
 
 disClient.commands = new Collection();
 
@@ -999,8 +1005,8 @@ app.get('/discord-bot/start', (req, res) => {
         disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
           GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
           GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
-          GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
-        ] });
+          GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
+        ], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] });
         disClient.commands = new Collection();
       });
       res.send('Bot started');
@@ -1026,8 +1032,8 @@ app.get('/discord-bot/stop', (req, res) => {
       disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
         GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
         GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
-        GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration
-      ] });
+        GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
+      ], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] });
       disClient.commands = new Collection();
       botReady = false;
       res.send('Bot stopped');
@@ -1160,6 +1166,8 @@ async function doCharacterChat(message){
   let prompt = await getPrompt(charId, message);
   let character = await getCharacter(charId);
   let results;
+  //let stopList;
+  //stopList = await getStopList(message);
   console.log("Generating text...")
   try{
     results = await generateText(endpointType, { endpoint: endpoint, configuredName: cleanUsername(message.author.username), prompt: prompt, settings: settings, hordeModel: hordeModel });
@@ -1174,14 +1182,14 @@ async function doCharacterChat(message){
   }
   let response = parseTextEnd(generatedText)
   console.log("Response: ", response);
-  let text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}:${response[0].replace('<USER>', message.author.username)}\n`;
+  let text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, message.author.username)}\n`;
   await saveConversation(message, charId, text);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
-    message.reply(response[0].replace('<USER>', message.author.username));
+    message.reply(response[0].replace(/<user>/g, message.author.username));
   } else {
     // 25% chance to just send a message to the channel
-    message.channel.send(response[0].replace('<USER>', message.author.username));
+    message.channel.send(response[0].replace(/<user>/g, message.author.username));
   };
 };
 
@@ -1194,6 +1202,24 @@ async function saveConversation(message, charId, text){
     fs.writeFileSync(pathName, '', { flag: 'wx' });
   }
   fs.appendFileSync(pathName, text);
+}
+async function getStopList(message) {
+  let usernames = [];
+  
+  // Fetch all members from the guild where the message was sent
+  await message.guild.members.fetch().then(members => {
+      members.each(member => {
+          // Check if the member is not the author of the message
+          if(!(message.author.id === member.user.id)) {
+              // Format the username as per the request
+              usernames.push(`${member.user.username}:`);
+          }
+      });
+  }).catch(console.error);
+  
+  usernames.push('You:');
+  
+  return usernames;
 }
 
 function removeLastLines(filename, numLinesToRemove) {
@@ -1262,7 +1288,9 @@ function insertAtLineFromEnd(prompt, lineFromEnd, text) {
 }
 
 function parseTextEnd(text) {
-  return text.split("\n").map(line => line.trim());
+  return text.split("\n")
+             .map(line => line.trim())
+             .filter(line => line !== "");
 }
 
 function cleanUsername(username) {

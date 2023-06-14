@@ -15,13 +15,13 @@ const kobold_defaults = {
 	"tfs": 1,
 	"typical": 1.0,
 	"sampler_order": [
-		6,
-		0,
-		1,
-		2,
-		3,
-		4,
-		5
+    2,
+    0,
+    3,
+    5,
+    1,
+    4,
+    6
 	],
 }
 const ooba_defaults = {
@@ -82,13 +82,13 @@ const akiko_defaults = {
         'top_p': parsedSettings.top_p,
         'typical': parsedSettings.typical,
         'sampler_order': [
-          6,
-          0,
-          1,
           2,
+          0,
           3,
+          5,
+          1,
           4,
-          5
+          6
         ],
         }
         return customSettings;
