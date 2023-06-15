@@ -1182,15 +1182,21 @@ async function doCharacterChat(message){
   }
   let response = parseTextEnd(generatedText)
   console.log("Response: ", response);
-  let text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, message.author.username)}\n`;
+  let text;
+  if(GlobalState.bias.length > 0){
+    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username)}\n`;
+  }else{
+    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, message.author.username)}\n`;
+  }
   await saveConversation(message, charId, text);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
-    message.reply(response[0].replace(/<user>/g, message.author.username));
+    message.reply(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username)}`);
   } else {
     // 25% chance to just send a message to the channel
-    message.channel.send(response[0].replace(/<user>/g, message.author.username));
+    message.channel.send(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username)}`);
   };
+  GlobalState.bias = '';
 };
 
 export async function saveConversation(message, charId, text){
@@ -1273,6 +1279,9 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
     basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
   }
   let createdPrompt = basePrompt + convo + character.name + ':';
+  if(GlobalState.bias.length > 0){
+    createdPrompt += ' ' + GlobalState.bias;
+  }
   if(GlobalState.authorsNote.length > 0){
     createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
   }
