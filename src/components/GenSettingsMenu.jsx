@@ -19,6 +19,15 @@ const GenSettingsMenu = () => {
     const [topP, setTopP] = useState(0.9);
     const [typical, setTypical] = useState(1);
     const [minLength, setMinLength] = useState(10);
+    const [samplerOrder, setSamplerOrder] = useState([
+        2,
+        0,
+        3,
+        5,
+        1,
+        4,
+        6
+      ],);
 
     useEffect(() => {
         var endpoint = localStorage.getItem('endpointType');
@@ -49,6 +58,7 @@ const GenSettingsMenu = () => {
                 const parsedSettings = JSON.parse(settings);
                 setMaxContextLength(parsedSettings.max_context_length);
                 setMaxLength(parsedSettings.max_length);
+                setMinLength(parsedSettings.min_length);
                 setRepPen(parsedSettings.rep_pen);
                 setRepPenRange(parsedSettings.rep_pen_range);
                 setRepPenSlope(parsedSettings.rep_pen_slope);
@@ -86,6 +96,7 @@ const GenSettingsMenu = () => {
                 setTopK(parsedSettings.top_k);
                 setTopP(parsedSettings.top_p);
                 setTypical(parsedSettings.typical);
+                setSamplerOrder(parsedSettings.samplerOrder);
             }
         
         }else{
@@ -98,6 +109,7 @@ const GenSettingsMenu = () => {
         const settings = {
             max_context_length: parseInt(maxContextLength),
             max_length: parseInt(maxLength),
+            min_length: parseInt(minLength),
             rep_pen: parseFloat(repPen),
             rep_pen_range: parseInt(repPenRange),
             rep_pen_slope: parseFloat(repPenSlope),
@@ -108,7 +120,8 @@ const GenSettingsMenu = () => {
             top_a: parseFloat(topA),
             top_k: parseInt(topK),
             top_p: parseFloat(topP),
-            typical: parseFloat(typical)
+            typical: parseFloat(typical),
+            samplerOrder: samplerOrder,
         };
         localStorage.setItem('generationSettings', JSON.stringify(settings));
         let discord = await getDiscordSettings();
@@ -168,13 +181,13 @@ const GenSettingsMenu = () => {
 
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Repitition Pen Range</span>
-                        <input className="col-span-1" type="range" min='0' max='512' value={repPenRange} onChange={(e) => {setRepetitionPenaltyRange(e.target.value); saveSettings();}} />
-                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='512' value={repPenRange} onChange={(e) => {setRepetitionPenaltyRange(e.target.value); saveSettings();}} />
+                        <input className="col-span-1" type="range" min='0' max='4096' value={repPenRange} onChange={(e) => {setRepetitionPenaltyRange(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' value={repPenRange} onChange={(e) => {setRepetitionPenaltyRange(e.target.value); saveSettings();}} />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Repitition Pen Slope</span>
-                        <input className="col-span-1" type="range" min='0' max='1' step='0.01' value={repPenSlope} onChange={(e) => {setRepetitionPenaltySlope(e.target.value); saveSettings();}} />
-                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='1' step='0.01' value={repPenSlope} onChange={(e) => {setRepetitionPenaltySlope(e.target.value); saveSettings();}} />
+                        <input className="col-span-1" type="range" min='0' step='0.01' value={repPenSlope} onChange={(e) => {setRepetitionPenaltySlope(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' step='0.01' value={repPenSlope} onChange={(e) => {setRepetitionPenaltySlope(e.target.value); saveSettings();}} />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Sampler Full Det.</span>
@@ -209,6 +222,15 @@ const GenSettingsMenu = () => {
                         <span className="col-span-1 font-bold">Typical</span>
                         <input className="col-span-1" type="range" min='0' max='1' step='0.01' value={typical} onChange={(e) => {setTypical(e.target.value); saveSettings();}} />
                         <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='1' step='0.01' value={typical} onChange={(e) => {setTypical(e.target.value); saveSettings();}} />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                        <span className="col-span-1 font-bold">TFS</span>
+                        <input className="col-span-1" type="range" min='0' max='1' step='0.01' value={tfs} onChange={(e) => {setTfs(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='1' step='0.01' value={tfs} onChange={(e) => {setTfs(e.target.value); saveSettings();}} />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                        <span className="col-span-1 font-bold">Sampler Order</span>
+                        <input className="col-span-2" type="text" value={samplerOrder.join(',')} onChange={(e) => {setSamplerOrder(e.target.value.split(',').map(Number)); saveSettings();}} />
                     </div>
                     </>
           )}

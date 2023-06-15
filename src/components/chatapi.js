@@ -81,15 +81,7 @@ const akiko_defaults = {
         'top_k': parsedSettings.top_k,
         'top_p': parsedSettings.top_p,
         'typical': parsedSettings.typical,
-        'sampler_order': [
-          2,
-          0,
-          3,
-          5,
-          1,
-          4,
-          6
-        ],
+        'sampler_order': parsedSettings.sampler_order,
         }
         return customSettings;
       }else{
