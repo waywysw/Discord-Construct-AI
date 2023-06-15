@@ -1,5 +1,5 @@
 # Project-Akiko-Discord
-A Discord Bot with Discord.JS, and REACT for Web Panel Configuration.
+A LLM Discord Bot with Discord.JS, and REACT for Web Panel Configuration. Uses Character Card Format. Includes a character editor, and UI.
 ## Features:
 - WebUI for configuring Discord Bot
 - Ooba, Kobold, and OAI Connection
