@@ -1351,11 +1351,24 @@ async function getHistory(charId, channel, lines){
 };
 
 async function setDiscordBotInfo(){
-  // Change bot's username
   let character = await getCharacter(botSettings.charId);
-  disClient.user.setUsername(character.name).then(user => {
-    console.log(`My new username is ${user.username}`);
-  }).catch(console.error);
+  
+  // Attempt to change bot's username
+  try {
+    await disClient.user.setUsername(character.name);
+    console.log(`My new username is ${character.name}`);
+  } catch(error) {
+    console.error(`Failed to set username to ${character.name}:`, error);
+
+    // If the first attempt fails, add an underscore and try again
+    try {
+      let newName = "_" + character.name;
+      await disClient.user.setUsername(newName);
+      console.log(`My new username is ${newName}`);
+    } catch(error) {
+      console.error(`Failed to set username to ${newName}:`, error);
+    }
+  }
 
   // Change bot's avatar
   const buffer = fs.readFileSync(`${CHARACTER_IMAGES_FOLDER}${character.avatar}`);
@@ -1363,6 +1376,7 @@ async function setDiscordBotInfo(){
     console.log('New avatar set!');
   }).catch(console.error);
 }
+
 
 async function getBotAppId(){
   let appId;
