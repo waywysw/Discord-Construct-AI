@@ -14,7 +14,7 @@ import extract from 'png-chunks-extract';
 import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import jimp from 'jimp';
-import { Client, GatewayIntentBits, Collection, REST, Routes, Partials } from 'discord.js';
+import { Client, GatewayIntentBits, Collection, REST, Routes, Partials, ActivityType } from 'discord.js';
 import readline from 'readline';
 import GlobalState from './src/discord/GlobalState.js';
 
@@ -163,7 +163,7 @@ app.get('/characters/:char_id', (req, res) => {
   res.json(characterData);
 });
 
-async function getCharacter(charId){
+export async function getCharacter(charId){
   const characterPath = path.join(CHARACTER_FOLDER, `${charId}.json`);
 
   if (!fs.existsSync(characterPath)) {
@@ -697,7 +697,7 @@ app.post('/textgen/:endpointType', async (req, res) => {
 });
 
 
-const generateText = async (endpointType, { endpoint, configuredName, prompt, settings, hordeModel }, stopList = null) => {
+export const generateText = async (endpointType, { endpoint, configuredName, prompt, settings, hordeModel }, stopList = null) => {
   // Rest of the code remains the same
   let response;
   let results;
@@ -865,7 +865,7 @@ app.post('/text/status', async (req, res) => {
 ############################################
 */
 // Create a new client instance
-let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
+export let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
   GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
   GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
   GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
@@ -873,8 +873,8 @@ let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBi
 
 disClient.commands = new Collection();
 
-let botReady = false;
-let botSettings;
+export let botReady = false;
+export let botSettings;
 
 if (!fs.existsSync('./public/discord/logs')){
   fs.mkdirSync('./public/discord/logs', { recursive: true });
@@ -1166,8 +1166,8 @@ async function doCharacterChat(message){
   let prompt = await getPrompt(charId, message);
   let character = await getCharacter(charId);
   let results;
-  //let stopList;
-  //stopList = await getStopList(message);
+  // let stopList;
+  // stopList = await getStopList(message);
   console.log("Generating text...")
   try{
     results = await generateText(endpointType, { endpoint: endpoint, configuredName: cleanUsername(message.author.username), prompt: prompt, settings: settings, hordeModel: hordeModel });
@@ -1193,7 +1193,7 @@ async function doCharacterChat(message){
   };
 };
 
-async function saveConversation(message, charId, text){
+export async function saveConversation(message, charId, text){
   const logName = `${message.channel.id}-${charId}.log`;
   const pathName = path.join('./public/discord/logs/', logName);
 
@@ -1222,9 +1222,10 @@ async function getStopList(message) {
   return usernames;
 }
 
-function removeLastLines(filename, numLinesToRemove) {
+export function removeLastLines(filename, numLinesToRemove) {
+  const pathName = path.join('./public/discord/logs/', filename);
   // Read the file into a string
-  let fileContent = fs.readFileSync(filename, 'utf-8');
+  let fileContent = fs.readFileSync(pathName, 'utf-8');
 
   // Split the string into lines
   let lines = fileContent.split('\n');
@@ -1243,11 +1244,19 @@ function removeLastLines(filename, numLinesToRemove) {
   }
 }
 
-async function getPrompt(charId, message){
+export async function getPrompt(charId, message, isSystem = false, systemMessage = null){
   let channelID = message.channel.id;
   let history = await getHistory(charId, channelID, GlobalState.historyLines);
   let character = await getCharacter(charId);
-  let currentMessage = `${cleanUsername(message.author.username)}: ${message.cleanContent}`;
+  let currentMessage;
+  let user;
+  if(isSystem){
+    user = cleanUsername(message.user.username);
+    currentMessage = `### ${systemMessage}`;
+  }else{
+    user = cleanUsername(message.author.username);
+    currentMessage = `${cleanUsername(message.author.username)}: ${message.cleanContent}`;
+  }
   const convo = history + `\n`+ currentMessage + '\n';
   let basePrompt = '';
   if(character.name.length > 1){
@@ -1268,9 +1277,7 @@ async function getPrompt(charId, message){
     createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
   }
   createdPrompt = cleanEmoji(createdPrompt);
-  return createdPrompt.replace(/{{char}}/g, character.name)
-                    .replace(/{{user}}/g, cleanUsername(message.author.username))
-                    .replace(/\r/g, '');
+  return createdPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, user).replace(/\r/g, '');
 };
 
 function insertAtLineFromEnd(prompt, lineFromEnd, text) {
@@ -1287,13 +1294,13 @@ function insertAtLineFromEnd(prompt, lineFromEnd, text) {
   return lines.join('\n');
 }
 
-function parseTextEnd(text) {
+export function parseTextEnd(text) {
   return text.split("\n")
              .map(line => line.trim())
              .filter(line => line !== "");
 }
 
-function cleanUsername(username) {
+export function cleanUsername(username) {
   // Remove leading characters
   let cleaned = username.replace(/^[._-]+/, '');
 
@@ -1302,9 +1309,9 @@ function cleanUsername(username) {
 
   return cleaned;
 }
-async function regenerateReply(){
+// async function regenerateReply(){
 
-};
+// };
 
 function cleanEmoji(emojiParagraph) {
   return emojiParagraph.replace(/<:(\w+):\d+>/g, ':$1:');
@@ -1357,4 +1364,35 @@ async function getBotAppId(){
     return null;
   }
   return appId;
+}
+export async function setStatus(message, type){
+  let activityType;
+  switch (type) {
+    case 'Playing':
+      activityType = ActivityType.Playing;
+      break;
+    case 'Watching':
+      activityType = ActivityType.Watching;
+      break;
+    case 'Listening':
+      activityType = ActivityType.Listening;
+      break;
+    case 'Streaming':
+      activityType = ActivityType.Streaming;
+      break;
+    case 'Competing':
+      activityType = ActivityType.Competing;
+      break;
+    default:
+      activityType = ActivityType.Playing;
+      break;
+  }
+  disClient.user.setActivity(`${message}`, {type: activityType});
+}
+export async function setOnlineMode(type){
+  disClient.user.setStatus(`${type}`);
+}
+export async function sendMessage(channelID, message){
+  let channel = await disClient.channels.fetch(channelID);
+  channel.send(message);
 }
