@@ -14,9 +14,9 @@ const command = {
         await interaction.deferReply();
         const lines = interaction.options.getInteger('lines');
         const channel = interaction.channel;
-        const messages = await channel.messages.fetch({ limit: 100 });
         let count = 0;
         try {
+            const messages = await channel.messages.fetch({ limit: 100 });
             for (const message of messages.values()) {
                 if (message.content.startsWith('.') || message.reference) {
                     await message.delete();
