@@ -109,7 +109,6 @@ const GenSettingsMenu = () => {
         const settings = {
             max_context_length: parseInt(maxContextLength),
             max_length: parseInt(maxLength),
-            min_length: parseInt(minLength),
             rep_pen: parseFloat(repPen),
             rep_pen_range: parseInt(repPenRange),
             rep_pen_slope: parseFloat(repPenSlope),
@@ -121,7 +120,7 @@ const GenSettingsMenu = () => {
             top_k: parseInt(topK),
             top_p: parseFloat(topP),
             typical: parseFloat(typical),
-            samplerOrder: samplerOrder,
+            sampler_order: samplerOrder,
         };
         localStorage.setItem('generationSettings', JSON.stringify(settings));
         let discord = await getDiscordSettings();
