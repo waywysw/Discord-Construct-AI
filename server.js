@@ -1250,20 +1250,24 @@ export function removeLastLines(filename, numLinesToRemove) {
   }
 }
 
-export async function getPrompt(charId, message, isSystem = false, systemMessage = null){
+export async function getPrompt(charId, message, isSystem = false, systemMessage = null, isRegen = false){
   let channelID = message.channel.id;
   let history = await getHistory(charId, channelID, GlobalState.historyLines);
   let character = await getCharacter(charId);
   let currentMessage;
   let user;
+  let convo = history;
   if(isSystem){
     user = cleanUsername(message.user.username);
     currentMessage = `### ${systemMessage}`;
-  }else{
+  }if(!isSystem){
     user = cleanUsername(message.author.username);
     currentMessage = `${cleanUsername(message.author.username)}: ${message.cleanContent}`;
+  }if(isRegen){
+    convo = removeLastLine(convo);
+  }else{
+    convo += `\n`+ currentMessage + '\n';
   }
-  const convo = history + `\n`+ currentMessage + '\n';
   let basePrompt = '';
   if(character.name.length > 1){
     basePrompt += character.name;
@@ -1274,7 +1278,6 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
   if(character.scenario.length > 1){
     basePrompt += 'Scenario:\n' + character.scenario + '\n';
   }
-
   if(character.mes_example.length > 1){
     basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
   }
@@ -1302,7 +1305,16 @@ function insertAtLineFromEnd(prompt, lineFromEnd, text) {
   // Join the lines back together
   return lines.join('\n');
 }
+function removeLastLine(history) {
+  // Split the string into lines
+  let lines = history.split('\n');
 
+  // Remove the last line
+  lines.pop();
+
+  // Join the lines back together
+  return lines.join('\n');
+}
 export function parseTextEnd(text) {
   return text.split("\n")
              .map(line => line.trim())
