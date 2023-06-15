@@ -14,7 +14,7 @@ const command = {
             option.setName('type')
                 .setDescription('The type of activity to display.')
                 .setRequired(true)
-                .addChoices({name: 'Playing', value: 'Playing'}, {name: 'Watching', value: 'Watching'}, {name: 'Listening', value: 'Listening'}, {name: 'Streaming', value: 'Streaming'})),
+                .addChoices({name: 'Playing', value: 'Playing'}, {name: 'Watching', value: 'Watching'}, {name: 'Listening', value: 'Listening'},{name: 'Competing', value: 'Competing'}, {name: 'Streaming', value: 'Streaming'})),
 	async execute(interaction) {
         await interaction.deferReply();
         const message = interaction.options.getString('message');
