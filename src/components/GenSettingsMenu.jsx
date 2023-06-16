@@ -199,8 +199,8 @@ const GenSettingsMenu = () => {
 
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Temperature</span>
-                        <input className="col-span-1" type="range" min='0' max='1' step='0.01' value={temperature} onChange={(e) => {setTemperature(e.target.value); saveSettings();}} />
-                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='1' step='0.01' value={temperature} onChange={(e) => {setTemperature(e.target.value); saveSettings();}} />
+                        <input className="col-span-1" type="range" min='0' max='10' step='0.01' value={temperature} onChange={(e) => {setTemperature(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='10' step='0.01' value={temperature} onChange={(e) => {setTemperature(e.target.value); saveSettings();}} />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Top A</span>
