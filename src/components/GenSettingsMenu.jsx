@@ -180,13 +180,13 @@ const GenSettingsMenu = () => {
 
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Repitition Pen Range</span>
-                        <input className="col-span-1" type="range" min='0' max='4096' value={repPenRange} onChange={(e) => {setRepetitionPenaltyRange(e.target.value); saveSettings();}} />
-                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' value={repPenRange} onChange={(e) => {setRepetitionPenaltyRange(e.target.value); saveSettings();}} />
+                        <input className="col-span-1" type="range" min='0' max='4096' value={repPenRange} onChange={(e) => {setRepPenRange(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='4096' value={repPenRange} onChange={(e) => {setRepPenRange(e.target.value); saveSettings();}} />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Repitition Pen Slope</span>
-                        <input className="col-span-1" type="range" min='0' step='0.01' value={repPenSlope} onChange={(e) => {setRepetitionPenaltySlope(e.target.value); saveSettings();}} />
-                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' step='0.01' value={repPenSlope} onChange={(e) => {setRepetitionPenaltySlope(e.target.value); saveSettings();}} />
+                        <input className="col-span-1" type="range" min='0' step='0.01' value={repPenSlope} onChange={(e) => {setRepPenSlope(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='0' step='0.01' value={repPenSlope} onChange={(e) => {setRepPenSlope(e.target.value); saveSettings();}} />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Sampler Full Det.</span>
