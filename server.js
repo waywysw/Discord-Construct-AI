@@ -759,6 +759,7 @@ export const generateText = async (endpointType, { endpoint, configuredName, pro
           max_tokens: settings.max_tokens,
           stop: [`${configuredName}:`],
         });
+        console.log(response);
         results = { results: [response.data.choices[0].text]};
       } catch (error) {
         throw new Error('An error occurred while generating text.');
@@ -1259,6 +1260,10 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
   let currentMessage;
   let user;
   let convo = history;
+  
+  // Log the initial value of convo
+  // console.log("Initial convo: ", convo);
+  
   if(isSystem){
     user = cleanUsername(message.user.username);
     currentMessage = `### ${systemMessage}`;
@@ -1268,8 +1273,14 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
   }if(isRegen){
     convo = removeLastLine(convo);
   }else{
-    convo += `\n`+ currentMessage + '\n';
+    if (!convo.includes(currentMessage)) {
+      convo += `\n`+ currentMessage + '\n';
+    }
   }
+
+  // Log the value of convo after adding the current message
+  // console.log("Convo after adding current message: ", convo);
+  
   let basePrompt = '';
   if(character.name.length > 1){
     basePrompt += character.name;
@@ -1284,6 +1295,10 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
     basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
   }
   let createdPrompt = basePrompt + convo + character.name + ':';
+  
+  // Log the value of createdPrompt
+  // console.log("Created prompt before bias and author's note: ", createdPrompt);
+  
   if(GlobalState.bias.length > 0){
     createdPrompt += ' ' + GlobalState.bias;
   }
@@ -1291,8 +1306,13 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
     createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
   }
   createdPrompt = cleanEmoji(createdPrompt);
+  
+  // Log the final value of createdPrompt
+  // console.log("Final created prompt: ", createdPrompt);
+  
   return createdPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, user).replace(/\r/g, '');
 };
+
 
 function insertAtLineFromEnd(prompt, lineFromEnd, text) {
   // Split the string into lines
@@ -1345,24 +1365,33 @@ async function getHistory(charId, channel, lines){
   let pathName = path.join('./public/discord/logs/', logName);
 
   if (fs.existsSync(pathName)) {
-    const fileStream = fs.createReadStream(pathName);
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    });
-
-    let history = [];
-    for await (const line of rl) {
-      history.unshift(line);
-      if (history.length > lines) {
-        history.pop();
+    try {
+      const data = fs.readFileSync(pathName, 'utf8');
+      const lines = data.split('\n');
+      let logString = '';
+  
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.length > 0) {
+          logString += line;
+          if (i < lines.length - 1 && lines[i + 1].trim().length > 0) {
+            logString += '\n';
+          }
+        }
       }
+  
+      // Process the log string as needed
+      console.log('Log String:', logString);
+      return logString;
+    } catch (err) {
+      console.error('Error reading log file:', err);
+      return '<START>';
     }
-    return history.join('\n');
   } else {
     return '<START>';
   }
 };
+
 
 async function setDiscordBotInfo(){
   let character = await getCharacter(botSettings.charId);
