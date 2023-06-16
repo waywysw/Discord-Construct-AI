@@ -227,6 +227,9 @@ const GenSettingsMenu = () => {
                         <input className="col-span-1" type="range" min='0' max='1' step='0.01' value={tfs} onChange={(e) => {setTfs(e.target.value); saveSettings();}} />
                         <input className="col-span-1 character-field" id='input-container' type="number" min='0' max='1' step='0.01' value={tfs} onChange={(e) => {setTfs(e.target.value); saveSettings();}} />
                     </div>
+                    <div>
+                        <span><i>The order by which all 7 samplers are applied, separated by commas. 0=top_k, 1=top_a, 2=top_p, 3=tfs, 4=typ, 5=temp, 6=rep_pen</i></span>
+                    </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Sampler Order</span>
                         <input className="col-span-2" type="text" value={samplerOrder.join(',')} onChange={(e) => {setSamplerOrder(e.target.value.split(',').map(Number)); saveSettings();}} />
