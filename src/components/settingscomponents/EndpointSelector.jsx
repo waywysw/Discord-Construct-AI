@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Connect from '../Connect';
 import HordeModelSelector from './HordeModelSelector';
-import { getDiscordSettings, updateDiscordBot } from '../discordbot/dbotapi';
+import { getDiscordSettings, updateDiscordBot, saveDiscordConfig } from '../discordbot/dbotapi';
 
 const EndpointSelector = () => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -22,10 +22,15 @@ const EndpointSelector = () => {
     };
     
     const handleConnectClick = async () => {
-      if(selectedOption.value === 'Horde') {
+      if(selectedOption.value === 'Horde' || selectedOption.value === 'OAI') {
         localStorage.setItem('endpoint', inputValue);
         localStorage.setItem('endpointType', selectedOption.value);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
+        let discord = await getDiscordSettings();
+        discord.data.endpointType = selectedOption.value
+        discord.data.endpoint = inputValue;
+        await saveDiscordConfig(discord.data);
+        await updateDiscordBot();
       } else {
         const url = ensureUrlFormat(inputValue)
         setInputValue(url);
@@ -81,7 +86,6 @@ const EndpointSelector = () => {
             <h2 className='text-xl font-bold mb-4 text-center mx-auto'>Text Generation Endpoint</h2>
           </div>
         <div id='endpoint-container'>
-          <form onSubmit={handleConnectClick}>
           <Select
           id="options"
           options={options}
@@ -100,9 +104,8 @@ const EndpointSelector = () => {
               />
           )}
           {selectedOption && (
-              <button className="connect-button" type="submit">Connect</button>
+              <button className="connect-button" onClick={() => handleConnectClick()}>Connect</button>
           )}
-          </form>
           <Connect/>
           {selectedOption && selectedOption.value === 'Horde' && (
             <HordeModelSelector/>

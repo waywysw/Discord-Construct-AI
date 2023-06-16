@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
+import { getDiscordSettings, updateDiscordBot, saveDiscordConfig } from '../discordbot/dbotapi';
 
 const HordeModelSelector = () => {
   const [models, setModels] = useState([]);
@@ -27,9 +28,13 @@ const HordeModelSelector = () => {
     }
   };
 
-  const handleChange = (selectedOption) => {
+  const handleChange = async (selectedOption) => {
     setSelectedModel(selectedOption);
     localStorage.setItem('hordeModel', selectedOption.value);
+    let discord = await getDiscordSettings();
+    discord.data.hordeModel = selectedOption.value
+    await saveDiscordConfig(discord.data);
+    await updateDiscordBot();
   };
 
   return (

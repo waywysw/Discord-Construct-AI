@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Connect from '../Connect';
 import HordeModelSelector from '../settingscomponents/HordeModelSelector';
+import { saveDiscordConfig, getDiscordSettings, updateDiscordBot } from "./discordbot/dbotapi";
 
 const ConnectMenu = ({setToggleConnectMenu}) => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -29,7 +30,7 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
     };
     
     const handleConnectClick = () => {
-      if(selectedOption.value === 'Horde') {
+      if(selectedOption.value === 'Horde' || selectedOption.value === 'OAI') {
         localStorage.setItem('endpoint', inputValue);
         localStorage.setItem('endpointType', selectedOption.value);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
@@ -64,7 +65,7 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
             return '' ;
           case 'Horde':
             return '0000000000';
-          case 'OpenAI':
+          case 'OAI':
             return '';
           default:
             return '';
@@ -88,7 +89,6 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
           <span className="absolute top-0 right-0 p-2 cursor-pointer hover:text-red-600" onClick={handleClose}>&times;</span>
             <h2 className="mb-4 text-2xl">Text Generation Endpoint</h2>
             <div id='endpoint-container'>
-            <form onSubmit={handleConnectClick}>
             <Select
             id="options"
             options={options}
@@ -110,9 +110,8 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
               </div>
             )}
             {selectedOption && (
-                <button className="connect-button" type="submit">Connect</button>
+                <button className="connect-button">Connect</button>
             )}
-            </form>
             <Connect/>
             {selectedOption && selectedOption.value === 'Horde' && (
             <HordeModelSelector/>
