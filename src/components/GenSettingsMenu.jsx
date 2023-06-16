@@ -20,13 +20,13 @@ const GenSettingsMenu = () => {
     const [typical, setTypical] = useState(1);
     const [minLength, setMinLength] = useState(10);
     const [samplerOrder, setSamplerOrder] = useState([
-        2,
-        0,
+        6,
         3,
+        2,
         5,
+        0,
         1,
-        4,
-        6
+        4
       ],);
 
     useEffect(() => {
@@ -56,6 +56,7 @@ const GenSettingsMenu = () => {
             setInvalidEndpoint(false);
             if (settings) {
                 const parsedSettings = JSON.parse(settings);
+                console.log(parsedSettings);
                 setMaxContextLength(parsedSettings.max_context_length);
                 setMaxLength(parsedSettings.max_length);
                 setMinLength(parsedSettings.min_length);
@@ -70,6 +71,7 @@ const GenSettingsMenu = () => {
                 setTopK(parsedSettings.top_k);
                 setTopP(parsedSettings.top_p);
                 setTypical(parsedSettings.typical);
+                setSamplerOrder(parsedSettings.sampler_order);
             }
         } else if(endpointType === 'OAI'){
             setInvalidEndpoint(false);
@@ -96,7 +98,7 @@ const GenSettingsMenu = () => {
                 setTopK(parsedSettings.top_k);
                 setTopP(parsedSettings.top_p);
                 setTypical(parsedSettings.typical);
-                setSamplerOrder(parsedSettings.samplerOrder);
+                setSamplerOrder(parsedSettings.sampler_order);
             }
         
         }else{
@@ -232,7 +234,7 @@ const GenSettingsMenu = () => {
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Sampler Order</span>
-                        <input className="col-span-2" type="text" value={samplerOrder.join(',')} onChange={(e) => {setSamplerOrder(e.target.value.split(',').map(Number)); saveSettings();}} />
+                        <input className="col-span-2" type="text" value={samplerOrder} onChange={(e) => {setSamplerOrder(e.target.value.split(',').map(Number)); saveSettings();}} />
                     </div>
                     </>
           )}
