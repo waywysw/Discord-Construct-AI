@@ -1132,7 +1132,7 @@ disClient.on('messageCreate', async (message) => {
   if (message.content.startsWith('.')) return;
   if (message.content.startsWith('-')){
     let cleanContent = message.cleanContent.substring(1); // Remove the leading '-'
-    let text = `${message.author.username}:${cleanContent}\n`;
+    let text = `${cleanUsername(message.author.username)}: ${cleanEmoji(cleanContent)}\n`;
     await saveConversation(message, botSettings.charId, text);
     return;
   }
