@@ -1360,26 +1360,27 @@ function cleanEmoji(emojiParagraph) {
   return emojiParagraph.replace(/<:(\w+):\d+>/g, ':$1:');
 }
 
-async function getHistory(charId, channel, lines){
+async function getHistory(charId, channel, lines) {
   let logName = `${channel}-${charId}.log`;
   let pathName = path.join('./public/discord/logs/', logName);
 
   if (fs.existsSync(pathName)) {
     try {
       const data = fs.readFileSync(pathName, 'utf8');
-      const lines = data.split('\n');
+      const allLines = data.split('\n');
+      let startIndex = Math.max(0, allLines.length - lines);
       let logString = '';
-  
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
+
+      for (let i = startIndex; i < allLines.length; i++) {
+        const line = allLines[i].trim();
         if (line.length > 0) {
           logString += line;
-          if (i < lines.length - 1 && lines[i + 1].trim().length > 0) {
+          if (i < allLines.length - 1 && allLines[i + 1].trim().length > 0) {
             logString += '\n';
           }
         }
       }
-  
+
       // Process the log string as needed
       console.log('Log String:', logString);
       return logString;
@@ -1390,7 +1391,7 @@ async function getHistory(charId, channel, lines){
   } else {
     return '<START>';
   }
-};
+}
 
 
 async function setDiscordBotInfo(){
