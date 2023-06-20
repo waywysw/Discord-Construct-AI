@@ -48,6 +48,7 @@ const AUDIO_OUTPUT = './public/audio/';
 const HORDE_API_URL = 'https://aihorde.net/api/';
 const CONVERSATIONS_FOLDER = './public/conversations/';
 const CHARACTER_EXPORT_FOLDER = './public/exports/';
+const PRESETS_FOLDER = './public/presets/';
 
 function allowed_file(filename) {
   const allowed_extensions = ['.png', '.jpg', '.jpeg', '.gif'];
@@ -668,7 +669,13 @@ app.delete('/backgrounds/:filename', (req, res) => {
     }
   });
 });
-
+/*
+############################################
+##                                        ##
+##             Settings ROUTES            ##
+##                                        ##
+############################################
+*/
 app.post('/textgen/:endpointType', async (req, res) => {
   try {
     let { endpointType } = req.params;
@@ -866,6 +873,40 @@ app.post('/text/status', async (req, res) => {
   }
 });
 
+app.post('/text/preset', async (req, res) => {
+  if (!fs.existsSync(PRESETS_FOLDER)) {
+    fs.mkdirSync(PRESETS_FOLDER, { recursive: true });
+  }
+  let settings = req.body.settings;
+  let name = req.body.name;
+  let preset = { name, settings };
+  try {
+    fs.writeFileSync(path.join(PRESETS_FOLDER, `${name}.json`), JSON.stringify(preset));
+    res.json({ message: 'Preset saved successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while saving the preset.' });
+  }
+});
+
+app.get('/text/preset', async (req, res) => {
+  try {
+    const presets = [];
+    const files = fs.readdirSync(PRESETS_FOLDER);
+    files.forEach(file => {
+      const ext = path.extname(file);
+      if (ext === '.json') {
+        const data = fs.readFileSync(path.join(PRESETS_FOLDER, file), 'utf-8');
+        const preset = JSON.parse(data);
+        presets.push(preset);
+      }
+    });
+    res.json({ presets });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching the presets.' });
+  }
+});
 /*
 ############################################
 ##                                        ##

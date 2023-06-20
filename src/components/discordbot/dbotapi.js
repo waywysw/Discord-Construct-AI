@@ -31,3 +31,12 @@ export async function updateDiscordBot(){
 export async function getBotInvite(appId){
     return `https://discord.com/oauth2/authorize?client_id=${appId}&scope=bot&permissions=1099511627775`
 }
+export async function createPreset(data){
+    const response = await axios.post(`${JS_API}/text/preset`, data);
+    return response;
+}
+
+export async function fetchPresets(){
+    const response = await axios.get(`${JS_API}/text/preset`);
+    return response;
+}

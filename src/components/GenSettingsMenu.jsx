@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { saveDiscordConfig, getDiscordSettings } from "./discordbot/dbotapi";
+import { saveDiscordConfig, getDiscordSettings, createPreset, fetchPresets } from "./discordbot/dbotapi";
 import { FiRefreshCcw, FiSave } from 'react-icons/fi';
 
 const GenSettingsMenu = () => {
@@ -28,6 +28,20 @@ const GenSettingsMenu = () => {
         1,
         4
       ],);
+    const [presetName, setPresetName] = useState('');
+    const [presets, setPresets] = useState([]);
+  
+    useEffect(() => {
+        const getPresets = async () => {
+            try {
+                const response = await fetchPresets();
+                setPresets(response.data.presets);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getPresets();
+    }, []);
 
     useEffect(() => {
         var endpoint = localStorage.getItem('endpointType');
@@ -107,6 +121,67 @@ const GenSettingsMenu = () => {
         }
     }, []);
 
+    const savePreset = async () => {
+        const settings = {
+            max_context_length: parseInt(maxContextLength),
+            max_length: parseInt(maxLength),
+            rep_pen: parseFloat(repPen),
+            rep_pen_range: parseInt(repPenRange),
+            rep_pen_slope: parseFloat(repPenSlope),
+            sampler_full_determinism: samplerFullDeterminism,
+            singleline: singleline,
+            temperature: parseFloat(temperature),
+            tfs: parseFloat(tfs),
+            top_a: parseFloat(topA),
+            top_k: parseInt(topK),
+            top_p: parseFloat(topP),
+            typical: parseFloat(typical),
+            sampler_order: samplerOrder,
+        };
+        const data = {
+            name: presetName,
+            settings: settings
+        };
+        try {
+            const response = await createPreset(data);
+            console.log(response.data.message);
+            setPresets(prevPresets => [...prevPresets, presetName]);
+        } catch (error) {
+            console.error(error);
+        }
+        let discord = await getDiscordSettings();
+        discord.data.settings = settings;
+        await saveDiscordConfig(discord.data);
+    };
+
+    const loadPreset = async (presetName) => {
+        const preset = presets.find(p => p.name === presetName);
+        if (preset) {
+            const parsedSettings = preset.settings;
+            setMaxContextLength(parsedSettings.max_context_length);
+            setMaxLength(parsedSettings.max_length);
+            setRepPen(parsedSettings.rep_pen);
+            setMinLength(parsedSettings.min_length);
+            setRepPenRange(parsedSettings.rep_pen_range);
+            setRepPenSlope(parsedSettings.rep_pen_slope);
+            setSamplerFullDeterminism(parsedSettings.sampler_full_determinism);
+            setSingleline(parsedSettings.singleline);
+            setTemperature(parsedSettings.temperature);
+            setTfs(parsedSettings.tfs);
+            setTopA(parsedSettings.top_a);
+            setTopK(parsedSettings.top_k);
+            setTopP(parsedSettings.top_p);
+            setTypical(parsedSettings.typical);
+            setSamplerOrder(parsedSettings.sampler_order);
+            setPresetName(presetName);
+            let discord = await getDiscordSettings();
+            discord.data.settings = settings;
+            await saveDiscordConfig(discord.data);
+        } else {
+            console.error(`Preset with name ${presetName} not found`);
+        }
+    };
+
     const saveSettings = async () => {
         const settings = {
             max_context_length: parseInt(maxContextLength),
@@ -141,7 +216,19 @@ const GenSettingsMenu = () => {
             </div>
           ) : (
             <div className="flex flex-col justify-center text-white">
-              <div className="w-full">
+                <div className="w-full">
+                    <div className="grid grid-cols-4 gap-4">
+                        <span className="col-span-1 font-bold">Preset Name</span>
+                        <input className="col-span-2" type="text" value={presetName} onChange={(e) => setPresetName(e.target.value)} />
+                        <button className="aspect-w-1 aspect-h-1 rounded-lg shadow-md backdrop-blur-md p-2 w-12 h-12 border-2 border-solid border-gray-500 outline-none justify-center cursor-pointer transition-colors hover:bg-blue-600 text-selected-text" onClick={(event) => savePreset()}>
+                            <FiSave className="react-icon"/>
+                        </button>
+                    </div>
+                    <select onChange={(e) => loadPreset(e.target.value)} className="justify-center bg-selected text-selected-text rounded shadow-lg border-2 border-solid border-gray-500">
+                        {presets.map(preset => (
+                            <option key={preset.name} value={preset.name}>{preset.name}</option>
+                        ))}
+                    </select>
             {endpointType === "OAI" ? (
                     <>
                         <div className="grid grid-cols-3 gap-4">
