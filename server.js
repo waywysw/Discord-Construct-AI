@@ -931,9 +931,20 @@ if (!fs.existsSync('./public/discord/logs')){
 }
 
 try {
-  botSettings = JSON.parse(fs.readFileSync(`./public/discord/discordBot.json`, 'utf-8'));
+  botSettings = JSON.parse(fs.readFileSync('./public/discord/discordBot.json', 'utf-8'));
 } catch (error) {
   console.error('Failed to load config file:', error);
+  botSettings = {
+    token: '',
+    channels: [],
+    charId: '',
+    endpoint: '',
+    endpointType: '',
+    hordeModel: '',
+    settings: {},
+  };
+
+  fs.writeFileSync('./public/discord/discordBot.json', JSON.stringify(botSettings, null, 2), 'utf-8');
 }
 
 disClient.once('ready', () => {
