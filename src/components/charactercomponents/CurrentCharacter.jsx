@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchCharacter, getCharacterImageUrl, imageExists } from "../api";
+import { FiSave } from "react-icons/fi";
+import { updateDiscordBot } from "../discordbot/dbotapi";
 
 const CurrentCharacter = ({ Character }) => {
     const [character, setCharacter] = useState({});

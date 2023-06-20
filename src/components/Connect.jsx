@@ -17,7 +17,7 @@ const Connect = () => {
                 if(localStorage.getItem('endpointType') === 'Horde'){
                     setConnectionStatus(`${localStorage.getItem('hordeModel')} (Horde)`);
                 }else if (localStorage.getItem('endpointType') === 'OAI'){
-                    setConnectionStatus('Davinci 3 (OAI)');
+                    setConnectionStatus('GPT-3.5 16k (OAI)');
                 }
             }
         }

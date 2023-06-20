@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Connect from '../Connect';
 import HordeModelSelector from './HordeModelSelector';
-import { getDiscordSettings, updateDiscordBot, saveDiscordConfig } from '../discordbot/dbotapi';
+import { getDiscordSettings, saveDiscordConfig } from '../discordbot/dbotapi';
 
 const EndpointSelector = () => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -30,7 +30,6 @@ const EndpointSelector = () => {
         discord.data.endpointType = selectedOption.value
         discord.data.endpoint = inputValue;
         await saveDiscordConfig(discord.data);
-        await updateDiscordBot();
       } else {
         const url = ensureUrlFormat(inputValue)
         setInputValue(url);
@@ -41,7 +40,6 @@ const EndpointSelector = () => {
         settings.data.endpoint = url;
         settings.data.endpointType = selectedOption.value;
         await saveDiscordConfig(settings.data);
-        await updateDiscordBot();
       };
     };
 
