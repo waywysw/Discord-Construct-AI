@@ -20,7 +20,7 @@ const command = {
         const message = interaction.options.getString('message');
         const type = interaction.options.getString('type');
         await setStatus(message, type);
-        await interaction.editReply(`**Presence set to:**\n ${type} ${message}.`);
+        await interaction.editReply(`**Presence set to:**\n${type} ${message}.`);
 	},
 };
 

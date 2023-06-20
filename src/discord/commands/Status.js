@@ -15,7 +15,7 @@ const command = {
         await interaction.deferReply();
         const type = interaction.options.getString('type');
         await setOnlineMode(type);
-        await interaction.editReply(`**Status set to:**\n ${type}.`);
+        await interaction.editReply(`**Status set to:**\n${type}.`);
 	},
 };
 

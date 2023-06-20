@@ -11,7 +11,7 @@ const command = {
     if (!AuthorNote) {
       await interaction.editReply(`There is not an Author's Note set.`);
     } else if (AuthorNote) {
-      await interaction.editReply(`**Author's Note:**\n ${GlobalState.authorsNote}`)
+      await interaction.editReply(`**Author's Note:**\n${GlobalState.authorsNote}`)
     }
   },
 };

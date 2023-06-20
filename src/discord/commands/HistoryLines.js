@@ -13,7 +13,7 @@ const command = {
         await interaction.deferReply();
         const depth = interaction.options.getInteger('depth');
         GlobalState.historyLines = depth;
-        await interaction.editReply(`**History Length**:\n ${GlobalState.historyLines}`);
+        await interaction.editReply(`**History Length**:\n${GlobalState.historyLines}`);
     },
 };
 
