@@ -42,11 +42,15 @@ const command = {
         results = results.results[0];
         let generatedText;
         if(endpointType === 'Kobold' || endpointType === 'Horde'){
-            generatedText = results['text'];
+          generatedText = results['text'];
+        }else{
+          generatedText = results;
         }
-        let response = parseTextEnd(generatedText);
+        let removeAble = `${character.name}:`;
+        let response = parseTextEnd(generatedText)
         console.log("Response: ", response);
-        let text = `${character.name}: ${response[0].replace(/<user>/g, interaction.user.username)}\n`;
+        let text;
+        text = `${character.name}: ${response[0].replace(/<user>/g, interaction.user.username).replace(removeAble, '')}\n`;
         await saveConversation(interaction, charId, text);
         await interaction.editReply(response[0].replace(/<user>/g, interaction.user.username));
 	},
