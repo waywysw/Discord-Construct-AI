@@ -11,7 +11,7 @@ const command = {
                 .setRequired(true)),
     async execute(interaction) {
         await interaction.deferReply();
-        const depth = interaction.options.getInteger('depth');
+        const depth = interaction.options.getInteger('lines');
         GlobalState.historyLines = depth;
         await interaction.editReply(`**History Length**:\n${GlobalState.historyLines}`);
     },
