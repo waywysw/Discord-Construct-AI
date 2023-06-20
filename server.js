@@ -1243,21 +1243,22 @@ async function doCharacterChat(message){
   }else{
     generatedText = results;
   }
+  let removeAble = `${character.name}:`;
   let response = parseTextEnd(generatedText)
   console.log("Response: ", response);
   let text;
   if(GlobalState.bias.length > 0){
-    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username)}\n`;
+    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}\n`;
   }else{
-    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, message.author.username)}\n`;
+    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}\n`;
   }
   await saveConversation(message, charId, text);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
-    message.reply(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username)}`);
+    message.reply(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}`);
   } else {
     // 25% chance to just send a message to the channel
-    message.channel.send(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username)}`);
+    message.channel.send(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}`);
   };
   GlobalState.bias = '';
 };
