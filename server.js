@@ -1327,7 +1327,7 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
   
   if(isSystem){
     user = cleanUsername(message.user.username);
-    currentMessage = `### ${systemMessage}`;
+    currentMessage = `${systemMessage}`;
   }if(!isSystem){
     user = cleanUsername(message.author.username);
     currentMessage = `${cleanUsername(message.author.username)}: ${message.cleanContent}`;
