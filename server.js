@@ -1472,6 +1472,15 @@ async function setDiscordBotInfo(){
       console.log(`My new username is ${newName}`);
     } catch(error) {
       console.error(`Failed to set username to ${newName}:`, error);
+
+      // If the second attempt fails, add a dot and try again
+      try {
+        let newNameDot = "." + character.name;
+        await disClient.user.setUsername(newNameDot);
+        console.log(`My new username is ${newNameDot}`);
+      } catch(error) {
+        console.error(`Failed to set username to ${newNameDot}:`, error);
+      }
     }
   }
 
@@ -1481,6 +1490,7 @@ async function setDiscordBotInfo(){
     console.log('New avatar set!');
   }).catch(console.error);
 }
+
 
 
 async function getBotAppId(){
