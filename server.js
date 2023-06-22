@@ -1189,11 +1189,11 @@ disClient.on('interactionCreate', async interaction => {
 disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id) return;
-  let username = await getUserName(message.channel.id, message.author.username);
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
   if (!botSettings.channels.includes(message.channel.id) && !message.guild === null) return;
   if (message.content.startsWith('.')) return;
   if (message.content.startsWith('-')){
+    let username = await getUserName(message.channel.id, message.author.username);
     let cleanContent = message.cleanContent.substring(1); // Remove the leading '-'
     let text = `${username}: ${cleanEmoji(cleanContent)}\n`;
     await saveConversation(message, botSettings.charId, text);
