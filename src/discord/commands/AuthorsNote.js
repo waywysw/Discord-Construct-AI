@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import GlobalState from '../GlobalState.js';
+import { updateAuthorsNote, botSettings } from '../../../server.js';
 
 const command = {
 	data: new SlashCommandBuilder()
@@ -12,8 +12,8 @@ const command = {
 	async execute(interaction) {
         await interaction.deferReply();
         const message = interaction.options.getString('authorsnote');
-        GlobalState.authorsNote = message;
-        await interaction.editReply(`**Author's Note:**\n${GlobalState.authorsNote}`)
+        updateAuthorsNote(interaction.channel.id, botSettings.charId, message)
+        await interaction.editReply(`**Author's Note:**\n${message}`)
 	},
 };
 

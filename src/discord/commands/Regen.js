@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
-import { botSettings, cleanUsername, disClient, generateText, getCharacter, getPrompt, parseTextEnd, removeLastLines, saveConversation } from '../../../server.js';
+import { botSettings, cleanUsername, disClient, generateText, getCharacter, getPrompt, parseTextEnd, removeLastLines, saveConversation, getUserName } from '../../../server.js';
 
 const command = {
 	data: new SlashCommandBuilder()
@@ -22,6 +22,7 @@ const command = {
             // Delete the second to last bot message.
             secondLastBotMessage.delete().catch(console.error);
         }
+        let channelID = interaction.channelId;
         let charId = botSettings.charId;
         let endpoint = botSettings.endpoint;
         let endpointType = botSettings.endpointType;
@@ -32,9 +33,10 @@ const command = {
         let character = await getCharacter(charId);
         let prompt = await getPrompt(charId, interaction, true, null, true);
         let results;
+        let username = await getUserName(channelID, interaction.user.username);
         console.log("Generating text...");
         try {
-            results = await generateText(endpointType, { endpoint: endpoint, configuredName: cleanUsername(interaction.user.username), prompt: prompt, settings: settings, hordeModel: hordeModel});
+            results = await generateText(endpointType, { endpoint: endpoint, configuredName: username, prompt: prompt, settings: settings, hordeModel: hordeModel});
         } catch (error) {
             console.error('Error:', error);
             return;
@@ -50,9 +52,9 @@ const command = {
         let response = parseTextEnd(generatedText)
         console.log("Response: ", response);
         let text;
-        text = `${character.name}: ${response[0].replace(/<user>/g, interaction.user.username).replace(removeAble, '')}\n`;
+        text = `${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
         await saveConversation(interaction, charId, text);
-        await interaction.editReply(response[0].replace(/<user>/g, interaction.user.username));
+        await interaction.editReply(response[0].replace(/<user>/g, username));
 	},
 };
 export default command;

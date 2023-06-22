@@ -18,6 +18,7 @@ import { Client, GatewayIntentBits, Collection, REST, Routes, Partials, Activity
 import readline from 'readline';
 import GlobalState from './src/discord/GlobalState.js';
 import { get } from 'http';
+import { promisify } from 'util';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,7 +50,8 @@ const HORDE_API_URL = 'https://aihorde.net/api/';
 const CONVERSATIONS_FOLDER = './public/conversations/';
 const CHARACTER_EXPORT_FOLDER = './public/exports/';
 const PRESETS_FOLDER = './public/presets/';
-
+const aliasPath = path.join('./public/discord/', `aliases.json`);
+const notesPath = path.join('./public/discord/', `authorsNotes.json`);
 function allowed_file(filename) {
   const allowed_extensions = ['.png', '.jpg', '.jpeg', '.gif'];
   const ext = path.extname(filename).toLowerCase();
@@ -774,7 +776,6 @@ export const generateText = async (endpointType, { endpoint, configuredName, pro
           max_tokens: settings.max_tokens,
           stop: [`${configuredName}:`],
         });
-        console.log(response);
         results = { results: [response.data.choices[0].message.content]};
       } catch (error) {
         throw new Error('An error occurred while generating text.');
@@ -1188,12 +1189,13 @@ disClient.on('interactionCreate', async interaction => {
 disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id) return;
+  let username = await getUserName(message.channel.id, message.author.username);
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
   if (!botSettings.channels.includes(message.channel.id) && !message.guild === null) return;
   if (message.content.startsWith('.')) return;
   if (message.content.startsWith('-')){
     let cleanContent = message.cleanContent.substring(1); // Remove the leading '-'
-    let text = `${cleanUsername(message.author.username)}: ${cleanEmoji(cleanContent)}\n`;
+    let text = `${username}: ${cleanEmoji(cleanContent)}\n`;
     await saveConversation(message, botSettings.charId, text);
     return;
   }
@@ -1227,11 +1229,12 @@ async function doCharacterChat(message){
   let prompt = await getPrompt(charId, message);
   let character = await getCharacter(charId);
   let results;
+  let username = await getUserName(message.channel.id, message.author.username);
   // let stopList;
   // stopList = await getStopList(message);
   console.log("Generating text...")
   try{
-    results = await generateText(endpointType, { endpoint: endpoint, configuredName: cleanUsername(message.author.username), prompt: prompt, settings: settings, hordeModel: hordeModel });
+    results = await generateText(endpointType, { endpoint: endpoint, configuredName: username, prompt: prompt, settings: settings, hordeModel: hordeModel });
   } catch (error) {
     console.error('Error:', error);
     return;
@@ -1248,17 +1251,17 @@ async function doCharacterChat(message){
   console.log("Response: ", response);
   let text;
   if(GlobalState.bias.length > 0){
-    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}\n`;
+    text = `${username}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
   }else{
-    text = `${cleanUsername(message.author.username)}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}\n`;
+    text = `${username}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
   }
   await saveConversation(message, charId, text);
   if (Math.random() < 0.75) {
     // 75% chance to reply directly to the message
-    message.reply(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}`);
+    message.reply(`${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}`);
   } else {
     // 25% chance to just send a message to the channel
-    message.channel.send(`${GlobalState.bias} ${response[0].replace(/<user>/g, message.author.username).replace(removeAble, '')}`);
+    message.channel.send(`${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}`);
   };
   GlobalState.bias = '';
 };
@@ -1326,11 +1329,11 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
   // console.log("Initial convo: ", convo);
   
   if(isSystem){
-    user = cleanUsername(message.user.username);
+    user = await getUserName(channelID, message.user.username);
     currentMessage = `${systemMessage}`;
   }if(!isSystem){
-    user = cleanUsername(message.author.username);
-    currentMessage = `${cleanUsername(message.author.username)}: ${message.cleanContent}`;
+    user = await getUserName(channelID, message.author.username);
+    currentMessage = `${user}: ${message.cleanContent}`;
   }if(isRegen){
     convo = removeLastLine(convo);
   }else{
@@ -1338,7 +1341,7 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
       convo += `\n`+ currentMessage + '\n';
     }
   }
-
+  let authorsNote = await fetchAuthorsNote(channelID, charId);
   // Log the value of convo after adding the current message
   // console.log("Convo after adding current message: ", convo);
   
@@ -1363,8 +1366,9 @@ export async function getPrompt(charId, message, isSystem = false, systemMessage
   if(GlobalState.bias.length > 0){
     createdPrompt += ' ' + GlobalState.bias;
   }
-  if(GlobalState.authorsNote.length > 0){
-    createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, GlobalState.authorsNote);
+  if(authorsNote.length > 0){
+    console.log("Author's note: ", authorsNote);
+    createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, authorsNote);
   }
   createdPrompt = cleanEmoji(createdPrompt);
   
@@ -1533,4 +1537,187 @@ export async function setOnlineMode(type){
 export async function sendMessage(channelID, message){
   let channel = await disClient.channels.fetch(channelID);
   channel.send(message);
+}
+export function updateAlias(channelID, name, alias) {
+  fs.readFile(aliasPath, 'utf8', function(err, data){
+      if (err) {
+          // If the file doesn't exist, create it with the provided alias
+          if (err.code === 'ENOENT') {
+              let aliases = {
+                  'channels': [
+                      {
+                          'channelID': channelID,
+                          'aliases': [
+                              { 'name': name, 'alias': alias }
+                          ]
+                      }
+                  ]
+              };
+              fs.writeFile(aliasPath, JSON.stringify(aliases, null, 2), function(err) {
+                  if(err) {
+                      console.log(err);
+                  } else {
+                      console.log('New file was created and the alias was saved.');
+                  }
+              });
+          } else {
+              console.log('An error occurred while reading the file: ', err);
+          }
+      } else {
+          // If the file does exist, parse it, update it and save it
+          let aliases = JSON.parse(data);
+
+          let channel = aliases.channels.find(c => c.channelID === channelID);
+
+          if (!channel) {
+              channel = {
+                  'channelID': channelID,
+                  'aliases': []
+              };
+              aliases.channels.push(channel);
+          }
+
+          let userAlias = channel.aliases.find(a => a.name === name);
+
+          if (userAlias) {
+              userAlias.alias = alias;
+          } else {
+              channel.aliases.push({ 'name': name, 'alias': alias });
+          }
+
+          fs.writeFile(aliasPath, JSON.stringify(aliases, null, 2), function(err) {
+              if(err) {
+                  console.log(err);
+              } else {
+                  console.log('The file was saved with the updated alias!');
+              }
+          });
+      }
+  });
+}
+const _readFile = promisify(fs.readFile);
+
+export async function fetchAlias(channelID, name) {
+  try {
+    let data = await _readFile(aliasPath, 'utf8');
+    let aliases = JSON.parse(data);
+
+    let channel = aliases.channels.find(c => c.channelID === channelID);
+
+    if (!channel) {
+      console.log('No such channel exists');
+      return false;
+    }
+
+    let userAlias = channel.aliases.find(a => a.name === name);
+
+    if (userAlias) {
+      console.log('Alias for ' + name + ' is: ' + userAlias.alias);
+      return userAlias.alias;
+    } else {
+      console.log('No such user exists in the specified channel');
+      return false;
+    }
+
+  } catch (err) {
+    console.log('An error occurred while reading the file: ', err);
+    return false;
+  }
+}
+
+export async function getUserName(channelID, username){
+  let alias = await fetchAlias(channelID, username);
+  if (alias === false) {
+    console.log('No alias found for ' + username + '. Using username.');
+    return cleanUsername(username);
+  } else {
+    console.log(`name is `, alias);
+    return alias;
+  }
+}
+
+export function updateAuthorsNote(channelID, charId, authorsNote) {
+  fs.readFile(notesPath, 'utf8', function(err, data){
+      if (err) {
+          // If the file doesn't exist, create it with the provided alias
+          if (err.code === 'ENOENT') {
+              let notes = {
+                  'channels': [
+                      {
+                          'channelID': channelID,
+                          'notes': [
+                              { 'charId': charId, 'authorsNote': authorsNote }
+                          ]
+                      }
+                  ]
+              };
+              fs.writeFile(notesPath, JSON.stringify(notes, null, 2), function(err) {
+                  if(err) {
+                      console.log(err);
+                  } else {
+                      console.log('New file was created and the authors note was saved.');
+                  }
+              });
+          } else {
+              console.log('An error occurred while reading the file: ', err);
+          }
+      } else {
+          // If the file does exist, parse it, update it and save it
+          let notes = JSON.parse(data);
+
+          let channel = notes.channels.find(c => c.channelID === channelID);
+
+          if (!channel) {
+              channel = {
+                  'channelID': channelID,
+                  'notes': []
+              };
+              notes.channels.push(channel);
+          }
+
+          let authorsNote = channel.notes.find(a => a.charId === charId);
+
+          if (authorsNote) {
+            authorsNote.authorsNote = authorsNote;
+          } else {
+              channel.notes.push({ 'charId': charId, 'authorsNote': authorsNote });
+          }
+
+          fs.writeFile(notesPath, JSON.stringify(notes, null, 2), function(err) {
+              if(err) {
+                  console.log(err);
+              } else {
+                  console.log('The file was saved with the updated alias!');
+              }
+          });
+      }
+  });
+}
+
+export async function fetchAuthorsNote(channelID, name) {
+  try {
+    let data = await _readFile(notesPath, 'utf8');
+    let notes = JSON.parse(data);
+
+    let channel = notes.channels.find(c => c.channelID === channelID);
+
+    if (!channel) {
+      console.log('No such channel exists');
+      return false;
+    }
+
+    let authorsNote = channel.notes.find(a => a.charId === name);
+
+    if (authorsNote) {
+      console.log('Authors note for ' + name + ' is: ' + authorsNote.authorsNote);
+      return authorsNote.authorsNote;
+    } else {
+      console.log('No such character exists in the specified channel');
+      return false;
+    }
+
+  } catch (err) {
+    console.log('An error occurred while reading the file: ', err);
+    return false;
+  }
 }
