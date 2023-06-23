@@ -17,6 +17,7 @@ import jimp from 'jimp';
 import { Client, GatewayIntentBits, Collection, REST, Routes, Partials, ActivityType } from 'discord.js';
 import GlobalState from './src/discord/GlobalState.js';
 import { promisify } from 'util';
+import {QdrantClient} from '@qdrant/qdrant-js'; // REST client
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
