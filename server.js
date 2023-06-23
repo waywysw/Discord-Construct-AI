@@ -15,9 +15,7 @@ import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import jimp from 'jimp';
 import { Client, GatewayIntentBits, Collection, REST, Routes, Partials, ActivityType } from 'discord.js';
-import readline from 'readline';
 import GlobalState from './src/discord/GlobalState.js';
-import { get } from 'http';
 import { promisify } from 'util';
 
 const __filename = fileURLToPath(import.meta.url);
