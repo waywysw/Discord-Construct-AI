@@ -18,6 +18,7 @@ const command = {
         await interaction.deferReply();
         const name = interaction.options.getString('name');
         let user = interaction.options.getUser('user');
+        user = user ? user.username : null;
         if(!user){
             user = interaction.user.username;
         }
