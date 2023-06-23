@@ -1419,8 +1419,9 @@ export function cleanUsername(username) {
 
 // };
 
-function cleanEmoji(emojiParagraph) {
-  return emojiParagraph.replace(/<:(\w+):\d+>/g, ':$1:');
+export function cleanEmoji(text) {
+  // Remove emoji characters using regex
+  return text.replace(/<:[a-zA-Z0-9_]+:[0-9]+>/g, '');
 }
 
 async function getHistory(charId, channel, lines) {
