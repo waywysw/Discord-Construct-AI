@@ -15,8 +15,6 @@ export async function doCharacterChat(message){
     let character = await getCharacter(charId);
     let results;
     let username = await getUserName(message.channel.id, message.author.username);
-    // let stopList;
-    // stopList = await getStopList(message);
     console.log("Generating text...")
     try{
       results = await generateText(endpointType, { endpoint: endpoint, configuredName: username, prompt: prompt, settings: settings, hordeModel: hordeModel });
@@ -33,7 +31,6 @@ export async function doCharacterChat(message){
     }
     let removeAble = `${character.name}:`;
     let response = parseTextEnd(generatedText)
-    console.log("Response: ", response);
     let text;
     if(GlobalState.bias.length > 0){
       text = `${username}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
@@ -110,9 +107,6 @@ export async function doCharacterChat(message){
     let user;
     let convo = history;
     
-    // Log the initial value of convo
-    // console.log("Initial convo: ", convo);
-    
     if(isSystem){
       user = await getUserName(channelID, message.user.username);
       currentMessage = `${systemMessage}`;
@@ -127,8 +121,6 @@ export async function doCharacterChat(message){
       }
     }
     let authorsNote = await fetchAuthorsNote(channelID, charId);
-    // Log the value of convo after adding the current message
-    // console.log("Convo after adding current message: ", convo);
     
     let basePrompt = '';
     if(character.name.length > 1){
@@ -145,9 +137,6 @@ export async function doCharacterChat(message){
     }
     let createdPrompt = basePrompt + convo + character.name + ':';
     
-    // Log the value of createdPrompt
-    // console.log("Created prompt before bias and author's note: ", createdPrompt);
-    
     if(GlobalState.bias.length > 0){
       createdPrompt += ' ' + GlobalState.bias;
     }
@@ -156,9 +145,6 @@ export async function doCharacterChat(message){
       createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, authorsNote);
     }
     createdPrompt = cleanEmoji(createdPrompt);
-    
-    // Log the final value of createdPrompt
-    // console.log("Final created prompt: ", createdPrompt);
     
     return createdPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, user).replace(/\r/g, '');
   };
@@ -231,9 +217,6 @@ export async function doCharacterChat(message){
             }
           }
         }
-  
-        // Process the log string as needed
-        console.log('Log String:', logString);
         return logString;
       } catch (err) {
         console.error('Error reading log file:', err);
@@ -342,7 +325,6 @@ export async function setDiscordBotInfo(){
                     if(err) {
                         console.log(err);
                     } else {
-                        console.log('New file was created and the alias was saved.');
                     }
                 });
             } else {
@@ -374,7 +356,6 @@ export async function setDiscordBotInfo(){
                 if(err) {
                     console.log(err);
                 } else {
-                    console.log('The file was saved with the updated alias!');
                 }
             });
         }
@@ -390,17 +371,14 @@ export async function setDiscordBotInfo(){
       let channel = aliases.channels.find(c => c.channelID === channelID);
   
       if (!channel) {
-        console.log('No such channel exists');
         return false;
       }
   
       let userAlias = channel.aliases.find(a => a.name === name);
   
       if (userAlias) {
-        console.log('Alias for ' + name + ' is: ' + userAlias.alias);
         return userAlias.alias;
       } else {
-        console.log('No such user exists in the specified channel');
         return false;
       }
   
@@ -413,10 +391,8 @@ export async function setDiscordBotInfo(){
   export async function getUserName(channelID, username){
     let alias = await fetchAlias(channelID, username);
     if (alias === false) {
-      console.log('No alias found for ' + username + '. Using username.');
       return cleanUsername(username);
     } else {
-      console.log(`name is `, alias);
       return alias;
     }
   }
@@ -440,7 +416,6 @@ export async function setDiscordBotInfo(){
                     if(err) {
                         console.log(err);
                     } else {
-                        console.log('New file was created and the authors note was saved.');
                     }
                 });
             } else {
@@ -472,7 +447,6 @@ export async function setDiscordBotInfo(){
                 if(err) {
                     console.log(err);
                 } else {
-                    console.log('The file was saved with the updated alias!');
                 }
             });
         }
@@ -487,17 +461,14 @@ try {
     let channel = notes.channels.find(c => c.channelID === channelID);
 
     if (!channel) {
-    console.log('No such channel exists');
     return false;
     }
 
     let authorsNote = channel.notes.find(a => a.charId === name);
 
     if (authorsNote) {
-    console.log('Authors note for ' + name + ' is: ' + authorsNote.authorsNote);
     return authorsNote.authorsNote;
     } else {
-    console.log('No such character exists in the specified channel');
     return false;
     }
 
@@ -534,7 +505,6 @@ export async function moveAndRenameFile(name, newName) {
 
     try {
         await rename(currentPath, newPath);
-        console.log(`File was moved and renamed from ${name} to ${newName}`);
     } catch (err) {
         console.error(`Error moving file: ${err}`);
     }

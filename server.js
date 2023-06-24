@@ -998,7 +998,6 @@ const loadCommands = async () => {
   }
   if(botSettings.appId.length > 1){
     registerCommandsGlobally();
-    // registerCommandsGuild();
   }
 }
 
