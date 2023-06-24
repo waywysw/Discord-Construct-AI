@@ -44,7 +44,7 @@ const command = {
         let response = parseTextEnd(generatedText)
         console.log("Response: ", response);
         let text;
-        text = `${message}\n${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
+        text = `\n${message}\n${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
         await saveConversation(interaction, charId, text);
         await sendMessage(channelID, response[0].replace(/<user>/g, username))
 	},
