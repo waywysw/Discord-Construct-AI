@@ -3,7 +3,7 @@ import GlobalState from "./GlobalState.js";
 import { promisify } from 'util';
 import { ActivityType } from 'discord.js';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs-extra';
 
 export async function doCharacterChat(message){
     let charId = botSettings.charId;
@@ -52,12 +52,13 @@ export async function doCharacterChat(message){
     const logName = `${message.channel.id}-${charId}.log`;
     const pathName = path.join('./public/discord/logs/', logName);
   
-    // Check if the file exists, and if it doesn't, create it
-    if (!fs.existsSync(pathName)) {
-      fs.writeFileSync(pathName, '', { flag: 'wx' });
-    }
-    fs.appendFileSync(pathName, text);
+    // Check if the directory exists, and if it doesn't, create it
+    await fs.ensureDir(path.dirname(pathName));
+
+    // Then append text to the file (it will create the file if it doesn't exist)
+    await fs.appendFile(pathName, text);
   }
+
   export async function getStopList(message) {
     let usernames = [];
     
