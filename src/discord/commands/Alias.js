@@ -1,7 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import GlobalState from '../GlobalState.js';
-import { updateAlias } from '../../../server.js';
-
+import { updateAlias } from '../Discord.js';
 const command = {
 	data: new SlashCommandBuilder()
 		.setName('alias')

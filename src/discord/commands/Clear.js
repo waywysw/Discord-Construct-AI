@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
-import { botSettings, removeLastLines } from '../../../server.js';
-
+import { botSettings,  } from '../../../server.js';
+import { removeLastLines } from '../Discord.js';
 const command = {
     data: new SlashCommandBuilder()
         .setName('clear')

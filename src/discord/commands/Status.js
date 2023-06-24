@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
-import { setOnlineMode } from '../../../server.js';
+import { setOnlineMode } from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()

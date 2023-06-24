@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
-import { botSettings, generateText, getCharacter, getPrompt, parseTextEnd, saveConversation, getUserName } from '../../../server.js';
+import { botSettings, generateText, getCharacter} from '../../../server.js';
+import { getPrompt, parseTextEnd, saveConversation, getUserName  } from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()

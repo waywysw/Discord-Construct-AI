@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import GlobalState from '../GlobalState.js';
-import { setStatus } from '../../../server.js';
+import {setStatus} from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()

@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { botSettings, getCharacter, saveConversation } from '../../../server.js';
+import { botSettings, getCharacter } from '../../../server.js';
+import { saveConversation } from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()

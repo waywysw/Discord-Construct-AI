@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { updateAuthorsNote, botSettings } from '../../../server.js';
-
+import { botSettings } from '../../../server.js';
+import { updateAuthorsNote } from '../Discord.js';
 const command = {
 	data: new SlashCommandBuilder()
 		.setName('note')
