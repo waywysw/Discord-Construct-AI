@@ -741,17 +741,32 @@ export const generateText = async (endpointType, { endpoint, configuredName, pro
         console.log(error);
       }        
       break;
-
     case 'Ooba':
       try{
-        const params = { prompt };
-        const oobaPayload = JSON.stringify([prompt, params]);
-
-        response = await axios.post(`${endpoint}/run/textgen`, {
-          data: [oobaPayload]
-        });
-        const rawReply = response.data.data[0];
-        results = rawReply.split(prompt)[1];
+        const oobaPayload = {
+        'prompt': prompt,
+        'max_new_tokens': settings.max_length,
+        'do_sample': true,
+        'temperature': settings.temperature,
+        'top_p': settings.top_p,
+        'typical_p': settings.typical,
+        'tfs': settings.tfs,
+        'top_a': settings.top_a,
+        'repetition_penalty': settings.rep_pen,
+        'repetition_penalty_range': settings.rep_pen_range,
+        'top_k': settings.top_k,
+        'min_length': settings.min_length,
+        'add_bos_token': true,
+        'truncation_length': 2048,
+        'ban_eos_token': true,
+        'skip_special_tokens': true,
+        'stopping_strings': stops
+        }
+        response = await axios.post(`${endpoint}/api/v1/generate`, oobaPayload);
+        if (response.status === 200) {
+          results = response.data['results'][0]['text'];
+          return { results: [results] };
+        }
       } catch (error) {
         console.log(error);
       }
