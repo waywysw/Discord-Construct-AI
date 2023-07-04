@@ -706,6 +706,7 @@ app.post('/textgen/:endpointType', async (req, res) => {
 
 
 export const generateText = async (endpointType, { endpoint, configuredName, prompt, settings, hordeModel }, stopList = null) => {
+  let password = botSettings.password;
   // Rest of the code remains the same
   let char = 'Character';
   if(botSettings && botSettings.charId){
