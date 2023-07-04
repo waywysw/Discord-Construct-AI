@@ -7,6 +7,7 @@ import { saveDiscordConfig, getDiscordSettings, updateDiscordBot } from "./disco
 const ConnectMenu = ({setToggleConnectMenu}) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [inputValue, setInputValue] = useState('');
+    const [password, setPassword] = useState('');
 
     useEffect(() => {
         const closeOnEscapeKey = e => e.key === "Escape" ? setToggleConnectMenu(false) : null;
@@ -41,19 +42,19 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
         localStorage.setItem('endpoint', inputValue);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
       }
-      };
+    };
 
     function ensureUrlFormat(str) {
-        let url;
-        try {
-          url = new URL(str);
-        } catch (error) {
-          // If the provided string is not a valid URL, create a new URL
-          url = new URL(`http://${str}/`);
-        }
-      
-        return url.href;
+      let url;
+      try {
+        url = new URL(str);
+      } catch (error) {
+        // If the provided string is not a valid URL, create a new URL
+        url = new URL(`http://${str}/`);
       }
+    
+      return url.href;
+    }
     
     const getDefaultInputValue = (option) => {
         switch (option) {
@@ -67,6 +68,10 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
             return '0000000000';
           case 'OAI':
             return '';
+          case 'P-OAI':
+            return '';
+          case 'P-Claude':
+            return '';
           default:
             return '';
         }
@@ -76,7 +81,9 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
         { value: 'Kobold', label: 'Kobold' },
         { value: 'Ooba', label: 'OobaTextUI' },
         { value: 'Horde', label: 'Horde' },
-        { value: 'OAI', label: 'OpenAI' }
+        { value: 'OAI', label: 'OpenAI' },
+        { value: 'P-OAI', label: 'Proxy - OpenAI' },
+        { value: 'P-Claude', label: 'Proxy - Claude' },
     ];
     
     const handleClose = () => {
@@ -109,6 +116,20 @@ const ConnectMenu = ({setToggleConnectMenu}) => {
                 />
               </div>
             )}
+            {selectedOption && selectedOption.value === 'P-OAI' && selectedOption.value === 'P-Claude' &&(
+              <div className='relative flex flex-col text-center'>
+                <label htmlFor="inputValue" className='text-xl text-selected-text'>Proxy Password:</label>
+                <input
+                id="inputValue"
+                type="text"
+                label="Put in the proxy password here."
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder={getDefaultInputValue(selectedOption.value)}
+                />
+              </div>
+            )
+            }
             {selectedOption && (
                 <button className="connect-button">Connect</button>
             )}

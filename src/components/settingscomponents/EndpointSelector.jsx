@@ -7,6 +7,7 @@ import { getDiscordSettings, saveDiscordConfig } from '../discordbot/dbotapi';
 const EndpointSelector = () => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [inputValue, setInputValue] = useState('');
+    const [password, setPassword] = useState('');
 
     useEffect(() => {
       var localOption = localStorage.getItem('endpointType');
@@ -25,20 +26,24 @@ const EndpointSelector = () => {
       if(selectedOption.value === 'Horde' || selectedOption.value === 'OAI') {
         localStorage.setItem('endpoint', inputValue);
         localStorage.setItem('endpointType', selectedOption.value);
+        localStorage.setItem('password', password);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
         let discord = await getDiscordSettings();
         discord.data.endpointType = selectedOption.value
         discord.data.endpoint = inputValue;
+        discord.data.password = password;
         await saveDiscordConfig(discord.data);
       } else {
         const url = ensureUrlFormat(inputValue)
         setInputValue(url);
         localStorage.setItem('endpointType', selectedOption.value);
         localStorage.setItem('endpoint', inputValue);
+        localStorage.setItem('password', password);
         setSelectedOption(localStorage.getItem('endpointType'), localStorage.getItem('endpoint'));
         let settings = await getDiscordSettings();
         settings.data.endpoint = url;
         settings.data.endpointType = selectedOption.value;
+        settings.data.password = password;
         await saveDiscordConfig(settings.data);
       };
     };
@@ -65,6 +70,10 @@ const EndpointSelector = () => {
             return '0000000000';
           case 'OAI':
             return '';
+          case 'P-OAI':
+            return '';
+          case 'P-Claude':
+            return '';
           default:
             return '';
         }
@@ -74,7 +83,9 @@ const EndpointSelector = () => {
         { value: 'Kobold', label: 'Kobold' },
         { value: 'Ooba', label: 'OobaTextUI' },
         { value: 'Horde', label: 'Horde' },
-        { value: 'OAI', label: 'OAI' }
+        { value: 'OAI', label: 'OAI' },
+        { value: 'P-OAI', label: 'Proxy - OpenAI' },
+        { value: 'P-Claude', label: 'Proxy - Claude' },
     ];
   
     return (
@@ -101,6 +112,20 @@ const EndpointSelector = () => {
               placeholder={getDefaultInputValue(selectedOption.value)}
               />
           )}
+          {selectedOption && (selectedOption.value === 'P-OAI' || selectedOption.value === 'P-Claude') &&(
+            <div className='relative flex flex-col text-center'>
+              <label htmlFor="inputValue" className='text-xl text-selected-text'>Proxy Password:</label>
+              <input
+              id="inputValue"
+              type="text"
+              label="Put in the proxy password here."
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={getDefaultInputValue(selectedOption.value)}
+              />
+            </div>
+          )
+          }
           {selectedOption && (
               <button className="connect-button" onClick={() => handleConnectClick()}>Connect</button>
           )}

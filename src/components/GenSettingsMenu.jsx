@@ -229,7 +229,7 @@ const GenSettingsMenu = () => {
                             <option key={preset.name} value={preset.name}>{preset.name}</option>
                         ))}
                     </select>
-            {endpointType === "OAI" ? (
+            {(endpointType === "OAI" || endpointType === 'P-OAI' || endpointType === 'P-Claude') ? (
                     <>
                         <div className="grid grid-cols-3 gap-4">
                             <span className="col-span-1 font-bold">Max Generation Length</span>
