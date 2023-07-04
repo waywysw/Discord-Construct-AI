@@ -796,7 +796,6 @@ export const generateText = async (endpointType, { endpoint, configuredName, pro
         console.log(error);
       }
       break;
-
     case 'Horde':
       try{
         const hordeKey = endpoint ? endpoint : '0000000000';
@@ -827,9 +826,31 @@ export const generateText = async (endpointType, { endpoint, configuredName, pro
         console.log(error);
       }
       break;
-
-      default:
-        throw new Error('Invalid endpoint type or endpoint.');
+    case 'P-OAI':
+      break;
+    case 'P-Claude':
+      try{
+        const claudeResponse = await axios.post(endpoint + '/complete', {
+          "prompt": prompt + "\n\nAssistant:",
+          "model": `claude-1-100k`,
+          "temperature": settings.temperature,
+          "max_tokens_to_sample": settings.max_tokens,
+          "stop_sequences": [':[USER]', 'Assistant:', 'User:', `${configuredName}:`, `System:`],
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': password
+          },
+        });
+        if(!claudeResponse.data.choices[0].message.content === undefined){
+          results = { results: [claudeResponse.data.choices[0].message.content] };
+        }
+      } catch (error) {
+        console.log(error);
+      }
+      break;
+    default:
+      throw new Error('Invalid endpoint type or endpoint.');
     }
     return results;
 };
