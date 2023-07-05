@@ -141,9 +141,11 @@ export async function doCharacterChat(message){
     if(GlobalState.bias.length > 0){
       createdPrompt += ' ' + GlobalState.bias;
     }
-    if(authorsNote.length > 0){
-      console.log("Author's note: ", authorsNote);
-      createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, authorsNote);
+    if(!authorsNote.length === undefined){
+      if(authorsNote.length > 0){
+        console.log("Author's note: ", authorsNote);
+        createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, authorsNote);
+      }
     }
     createdPrompt = cleanEmoji(createdPrompt);
     
