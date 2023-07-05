@@ -17,7 +17,7 @@ export async function doCharacterChat(message){
     let username = await getUserName(message.channel.id, message.author.username);
     console.log("Generating text...")
     try{
-      results = await generateText(endpointType, { endpoint: endpoint, configuredName: username, prompt: prompt, settings: settings, hordeModel: hordeModel });
+      results = await generateText(prompt, username);
     } catch (error) {
       console.error('Error:', error);
       return;
@@ -204,7 +204,7 @@ export async function doCharacterChat(message){
     return text.replace(/<:[a-zA-Z0-9_]+:[0-9]+>/g, '');
   }
   
-  async function getHistory(charId, channel, lines) {
+  async function getHistory(charId, channel, lines = null) {
     let logName = `${channel}-${charId}.log`;
     let pathName = path.join('./public/discord/logs/', logName);
   
@@ -212,7 +212,10 @@ export async function doCharacterChat(message){
       try {
         const data = fs.readFileSync(pathName, 'utf8');
         const allLines = data.split('\n');
-        let startIndex = Math.max(0, allLines.length - lines);
+        if(lines === true){
+          return allLines;
+        }
+        let startIndex = Math.max(0, allLines.length - lines ? lines : 0);
         let logString = '';
   
         for (let i = startIndex; i < allLines.length; i++) {
@@ -515,4 +518,22 @@ export async function moveAndRenameFile(name, newName) {
     } catch (err) {
         console.error(`Error moving file: ${err}`);
     }
+}
+
+export async function regenMessage(message){
+  let originalContent = message.content;
+  let channelID = message.channel.id;
+  let charId = botSettings.charId;
+  let logs = await getHistory(charId, channelID, true);
+
+  let index = logs.findIndex(log => log.includes(originalContent));
+  let elementsBefore;
+  if (index != -1) { 
+    elementsBefore = logs.slice(0, index);
+  } else {
+    console.log('No log contains the original content');
+  }
+  let elementsAfter = logs.slice(index + 1, logs.length);
+  let newLogs = elementsBefore.concat(elementsAfter);
+  let newLogString = newLogs.join('\n');
 }

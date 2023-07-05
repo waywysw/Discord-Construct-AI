@@ -705,8 +705,12 @@ app.post('/textgen/:endpointType', async (req, res) => {
 });
 
 
-export const generateText = async (endpointType, { endpoint, configuredName, prompt, settings, hordeModel }, stopList = null) => {
+export const generateText = async (prompt, configuredName, stopList = null) => {
+  let endpoint = botSettings.endpoint;
+  let endpointType = botSettings.endpointType;
   let password = botSettings.password;
+  let settings = botSettings.settings;
+  let hordeModel = botSettings.hordeModel;
   // Rest of the code remains the same
   let char = 'Character';
   if(botSettings && botSettings.charId){
@@ -1254,8 +1258,8 @@ disClient.on('messageReactionAdd', async (reaction, user) => {
   }
   if (reaction.message.author.id === disClient.user.id){
     console.log('Reaction added to bot message')
-    // if(reaction.emoji.name === '♻️'){
-    //   reaction.message.edit()
-    // }
+    if(reaction.emoji.name === '♻️'){
+      reaction.message.edit()
+    }
   }
 });

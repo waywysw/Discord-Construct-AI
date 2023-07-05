@@ -11,17 +11,14 @@ const command = {
         interaction.deferReply();
         let channelID = interaction.channelId;
         let charId = botSettings.charId;
-        let endpoint = botSettings.endpoint;
         let endpointType = botSettings.endpointType;
-        let settings = botSettings.settings;
-        let hordeModel = botSettings.hordeModel;
         let character = await getCharacter(charId);
         let prompt = await getPrompt(charId, interaction, true, null, true);
         let results;
         let username = await getUserName(channelID, interaction.user.username);
         console.log("Generating text...");
         try {
-            results = await generateText(endpointType, { endpoint: endpoint, configuredName: username, prompt: prompt, settings: settings, hordeModel: hordeModel});
+            results = await generateText(prompt, username);
         } catch (error) {
             console.error('Error:', error);
             return;
