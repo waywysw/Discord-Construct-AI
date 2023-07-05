@@ -438,13 +438,13 @@ export async function setDiscordBotInfo(){
                 notes.channels.push(channel);
             }
   
-            let authorsNote = channel.notes.find(a => a.charId === charId);
-  
-            if (authorsNote) {
-              authorsNote.authorsNote = authorsNote;
+            let foundAuthorsNote = channel.notes.find(a => a.charId === charId);
+
+            if (foundAuthorsNote) {
+                foundAuthorsNote.authorsNote = authorsNote;
             } else {
                 channel.notes.push({ 'charId': charId, 'authorsNote': authorsNote });
-            }
+            }            
   
             fs.writeFile(notesPath, JSON.stringify(notes, null, 2), function(err) {
                 if(err) {
