@@ -1208,6 +1208,7 @@ disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
   if (message.author.id === disClient.user.id){
     message.react('♻️');
+    message.react('🗑️');
     return;
   }
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
