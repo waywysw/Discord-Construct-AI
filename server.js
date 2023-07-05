@@ -1206,7 +1206,10 @@ disClient.on('interactionCreate', async interaction => {
 
 disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
-  if (message.author.id === disClient.user.id) return;
+  if (message.author.id === disClient.user.id){
+    message.react('♻️');
+    return;
+  }
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
   if (!botSettings.channels.includes(message.channel.id) && !message.guild === null) return;
   if (message.content.startsWith('.')) return;
@@ -1235,5 +1238,23 @@ disClient.on('messageCreate', async (message) => {
       await doCharacterChat(currentMessage);
     }
     isProcessing = false;
+  }
+});
+
+disClient.on('messageReactionAdd', async (reaction, user) => {
+  if (user.bot) return;
+  if (reaction.partial) {
+    try {
+      await reaction.fetch();
+    } catch (error) {
+      console.error('Something went wrong when fetching the message:', error);
+      return;
+    }
+  }
+  if (reaction.message.author.id === disClient.user.id){
+    console.log('Reaction added to bot message')
+    // if(reaction.emoji.name === '♻️'){
+    //   reaction.message.edit()
+    // }
   }
 });

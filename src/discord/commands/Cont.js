@@ -39,7 +39,8 @@ const command = {
         let text;
         text = `${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
         await saveConversation(interaction, charId, text);
-        await interaction.editReply(response[0].replace(/<user>/g, username));
+        await interaction.channel.send(response[0].replace(/<user>/g, username));
+        await interaction.editReply({content: '', empheral: true});
 	},
 };
 export default command;

@@ -32,10 +32,14 @@ export async function doCharacterChat(message){
     let removeAble = `${character.name}:`;
     let response = parseTextEnd(generatedText)
     let text;
-    if(GlobalState.bias.length > 0){
+    if(GlobalState.bias.length > 0 && response[0] !== undefined){
       text = `${username}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
-    }else{
+    }else if(response[0] !== undefined){
       text = `${username}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
+    }
+    if(response[0] === undefined){
+      console.log("Response is undefined");
+      return;
     }
     await saveConversation(message, charId, text);
     if (Math.random() < 0.75) {
