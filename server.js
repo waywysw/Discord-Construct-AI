@@ -842,10 +842,11 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
             temperature: settings.temperature,
             max_tokens: settings.max_tokens,
             stop: [`${configuredName}:`],
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${password}`
-            },
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${password}`
+          },
         });
         console.log(response.data);
         results = { results: [response.data.choices[0].message.content]};
