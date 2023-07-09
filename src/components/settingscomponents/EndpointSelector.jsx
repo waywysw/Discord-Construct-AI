@@ -54,7 +54,7 @@ const EndpointSelector = () => {
           url = new URL(str);
         } catch (error) {
           // If the provided string is not a valid URL, create a new URL
-          url = new URL(`http://${str}/`);
+          url = new URL(`https://${str}/`);
         }
       
         return url.href;

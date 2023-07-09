@@ -705,7 +705,7 @@ app.post('/textgen/:endpointType', async (req, res) => {
 });
 
 
-export const generateText = async (prompt, configuredName, stopList = null) => {
+export const generateText = async (prompt, configuredName = 'You', stopList = null) => {
   let endpoint = botSettings.endpoint;
   let endpointType = botSettings.endpointType;
   let password = botSettings.password;
@@ -850,6 +850,7 @@ export const generateText = async (prompt, configuredName, stopList = null) => {
             max_tokens: settings.max_tokens,
             stop: [`${configuredName}:`],
         });
+        console.log(response.data);
         results = { results: [response.data.choices[0].message.content]};
       } catch (error) {
         console.log(error);
@@ -869,6 +870,7 @@ export const generateText = async (prompt, configuredName, stopList = null) => {
             'x-api-key': password
           },
         });
+        console.log(claudeResponse.data);
         if(!claudeResponse.data.choices[0].message.content === undefined){
           results = { results: [claudeResponse.data.choices[0].message.content] };
         }
