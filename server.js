@@ -1095,7 +1095,7 @@ process.on('unhandledRejection', (reason, promise) => {
 app.get('/discord-bot/start', (req, res) => {
   if (!botReady) {
     loadCommands();
-    if(!botSettings.token || !botSettings.channels || !botSettings.charId || !botSettings.endpoint || !botSettings.endpointType || !botSettings.settings) {
+    if(!botSettings.token || !botSettings.channels || !botSettings.charId || !botSettings.endpoint || !botSettings.endpointType) {
       res.status(500).send({
         message: 'Bot not started. Missing required settings.',
         error: 'Missing required settings.'
