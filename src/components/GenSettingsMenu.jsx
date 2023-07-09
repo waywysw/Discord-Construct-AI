@@ -57,7 +57,13 @@ const GenSettingsMenu = () => {
         } else if(endpoint === 'OAI'){
             setEndpointType(endpoint);
             setInvalidEndpoint(false);
-        }else {
+        } else if (endpoint === 'P-OAI') {
+            setEndpointType(endpoint);
+            setInvalidEndpoint(false);
+        } else if (endpoint === 'P-Claude') {
+            setEndpointType(endpoint);
+            setInvalidEndpoint(false);
+        } else {
             console.log('Endpoint type not recognized. Please check your settings.')
             setInvalidEndpoint(true);
         }
