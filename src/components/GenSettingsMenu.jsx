@@ -252,8 +252,8 @@ const GenSettingsMenu = () => {
             <>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Max Context Length</span>
-                        <input className="col-span-1" type="range" min='512' max='2048' value={maxContextLength} onChange={(e) => {setMaxContextLength(e.target.value); saveSettings();}} />
-                        <input className="col-span-1 character-field" id='input-container' type="number" min='512' max='2048' value={maxContextLength} onChange={(e) => {setMaxContextLength(e.target.value); saveSettings();}} />
+                        <input className="col-span-1" type="range" min='512'max='9999999'value={maxContextLength} onChange={(e) => {setMaxContextLength(e.target.value); saveSettings();}} />
+                        <input className="col-span-1 character-field" id='input-container' type="number" min='512' max='9999999' value={maxContextLength} onChange={(e) => {setMaxContextLength(e.target.value); saveSettings();}} />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <span className="col-span-1 font-bold">Max Generation Length</span>
