@@ -188,6 +188,9 @@ export async function doCharacterChat(message){
     
     for (let i = 0; i < lines.length; i++) {
         // If the line starts with a colon, it's the start of a new command
+        if (lines[i].startsWith(`${user}:`) || lines[i].startsWith('You:') || lines[i].startsWith('<START>') || lines[i].startsWith('<END>') || lines[i].startsWith('<USER>') || lines[i].toLowerCase().startsWith('user:') ) {
+          break;
+        }
         if (lines[i].startsWith(`${charName}:`)) {
             isFirstLine = false;
             if (currentCommand !== '') {
@@ -197,9 +200,6 @@ export async function doCharacterChat(message){
             currentCommand = lines[i];
         } else {
             // If the line doesn't start with a colon, it's a continuation of the current command or the first line
-            if(currentCommand.startsWith(`${user}:`) || currentCommand.startsWith(`user:`) || currentCommand.startsWith(`You:`) || currentCommand.startsWith(`<START>`)){
-                continue;
-            }
             if(currentCommand !== '' || isFirstLine){
                 currentCommand += (isFirstLine ? '' : '\n') + lines[i];
             }
