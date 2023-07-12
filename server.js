@@ -948,9 +948,17 @@ app.post('/text/status', async (req, res) => {
         break;
 
       case 'Ooba':
-        res.status(500).json({ error: 'Ooba is not yet supported.' });
+        try{
+          response = await axios.get(`${endpointUrl}/api/v1/model`);
+          if (response.status === 200) {
+            res.json(response.data.result);
+          } else {
+            res.status(404).json({ error: 'Ooba endpoint is not responding.' });
+          }
+        } catch (error) {
+          res.status(404).json({ error: 'Ooba endpoint is not responding.' });
+        }
         break;
-
       case 'OAI':
         res.status(500).json({ error: 'OAI is not yet supported.' });
         break;
