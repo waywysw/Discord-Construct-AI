@@ -1272,6 +1272,9 @@ disClient.on('interactionCreate', async interaction => {
 
 disClient.on('messageCreate', async (message) => {
   // Do not handle the bot's own messages (to avoid possible infinite loops)
+  if(message.attachments.size > 0){
+    return;
+  }
   if (message.author.id === disClient.user.id){
     return;
   }

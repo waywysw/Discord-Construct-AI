@@ -8,6 +8,7 @@ const EndpointSelector = () => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [inputValue, setInputValue] = useState('');
     const [password, setPassword] = useState('');
+    const [connectClick, setConnectClick] = useState(false);
 
     useEffect(() => {
       var localOption = localStorage.getItem('endpointType');
@@ -23,6 +24,7 @@ const EndpointSelector = () => {
     };
     
     const handleConnectClick = async () => {
+      setConnectClick(!connectClick);
       if(selectedOption.value === 'Horde' || selectedOption.value === 'OAI' || selectedOption.value === 'P-OAI' || selectedOption.value === 'P-Claude') {
         localStorage.setItem('endpoint', inputValue);
         localStorage.setItem('endpointType', selectedOption.value);
@@ -129,7 +131,7 @@ const EndpointSelector = () => {
           {selectedOption && (
               <button className="connect-button" onClick={() => handleConnectClick()}>Connect</button>
           )}
-          <Connect/>
+          <Connect connectClick={connectClick}/>
           {selectedOption && selectedOption.value === 'Horde' && (
             <HordeModelSelector/>
           )}

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {getModelStatus} from './chatapi';
 
-const Connect = () => {
+const Connect = (connectClick) => {
     const [connectionStatus, setConnectionStatus] = useState(false);
     
     useEffect(() => {
@@ -22,7 +22,7 @@ const Connect = () => {
             }
         }
         fetchStatus();
-    }, []);
+    }, [connectClick]);
 
     return (
         <>
