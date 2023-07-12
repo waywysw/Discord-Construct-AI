@@ -758,6 +758,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
             results = results.join(' ');
           }
         }
+        console.log(response.data)
       } catch (error) {
         console.log(error);
         results = false;
@@ -789,6 +790,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
           results = response.data['results'][0]['text'];
           return { results: [results] };
         }
+        console.log(response.data)
       } catch (error) {
         console.log(error);
         results = false;
@@ -816,6 +818,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         });
         if(response.data.choices[0].message.content === undefined){
           results = false;
+          console.log(response.data)
         }else{
           results = { results: [response.data.choices[0].message.content]};
         }
@@ -850,6 +853,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
             break;
           }
         }
+        console.log(response.data)
       } catch (error) {
         console.log(error);
         results = false;
@@ -874,6 +878,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         });
         if(response.data.choices[0].message.content === undefined){
           results = false;
+          console.log(response.data)
         }else{
           results = { results: [response.data.choices[0].message.content]};
         }
@@ -900,6 +905,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
           results = { results: [claudeResponse.data.choices[0].message.content] };
         }else{
           results = false;
+          console.log(response.data)
         }
       } catch (error) {
         console.log(error);
