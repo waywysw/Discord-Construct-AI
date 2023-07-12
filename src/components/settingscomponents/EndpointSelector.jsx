@@ -23,7 +23,7 @@ const EndpointSelector = () => {
     };
     
     const handleConnectClick = async () => {
-      if(selectedOption.value === 'Horde' || selectedOption.value === 'OAI') {
+      if(selectedOption.value === 'Horde' || selectedOption.value === 'OAI' || selectedOption.value === 'P-OAI' || selectedOption.value === 'P-Claude') {
         localStorage.setItem('endpoint', inputValue);
         localStorage.setItem('endpointType', selectedOption.value);
         localStorage.setItem('password', password);
@@ -54,7 +54,7 @@ const EndpointSelector = () => {
           url = new URL(str);
         } catch (error) {
           // If the provided string is not a valid URL, create a new URL
-          url = new URL(`https://${str}/`);
+          url = new URL(`http://${str}/`);
         }
       
         return url.href;

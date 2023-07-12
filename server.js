@@ -733,6 +733,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
   }
   switch (endpointType) {
     case 'Kobold':
+      console.log("Kobold");
       try{
         const koboldPayload = { 
           prompt, 
@@ -765,6 +766,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       }        
       break;
     case 'Ooba':
+      console.log("Ooba");
       try{
         const oobaPayload = {
         'prompt': prompt,
@@ -798,6 +800,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       break;
 
     case 'OAI':
+      console.log("OAI");
       const configuration = new Configuration({
         apiKey: endpoint,
       });
@@ -828,6 +831,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       }
       break;
     case 'Horde':
+      console.log("Horde");
       try{
         const hordeKey = endpoint ? endpoint : '0000000000';
         const payload = { prompt, params: settings, models: [hordeModel] };
@@ -860,6 +864,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       }
       break;
     case 'P-OAI':
+      console.log("P-OAI");
       try{
         const response = await axios.post(endpoint + '/chat/completions', {
             model: "gpt-4",
@@ -888,6 +893,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       }
       break;
     case 'P-Claude':
+      console.log("P-Claude");
       try{
         const claudeResponse = await axios.post(endpoint + '/complete', {
           "prompt": prompt + "\n\nAssistant:",
