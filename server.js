@@ -737,7 +737,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       try{
         const koboldPayload = { 
           prompt, 
-          stops, 
+          stops,
           frmtrmblln: true,
           rep_pen: settings.rep_pen ? settings.rep_pen : 1.0,
           rep_pen_range: settings.rep_pen_range ? settings.rep_pen_range : 512,
