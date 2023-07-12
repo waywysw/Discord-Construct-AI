@@ -19,8 +19,9 @@ export async function doCharacterChat(message){
       console.log('Error:', error)
       return;
     }
-    if(!results){
-      console.log("No results returned from API");
+    if(results.results === undefined){
+      console.log("Results are undefined");
+      return;
     }
     results = results.results[0];
     let generatedText;
@@ -271,19 +272,6 @@ export async function setDiscordBotInfo(){
     disClient.user.setAvatar(buffer).then(user => {
       console.log('New avatar set!');
     }).catch(console.error);
-  }
-  
-  
-  
-  async function getBotAppId(){
-    let appId;
-    try{
-      appId = disClient.user.id
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-    return appId;
   }
   export async function setStatus(message, type){
     let activityType;
