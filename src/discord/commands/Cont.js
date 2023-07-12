@@ -30,7 +30,7 @@ const command = {
         }else{
           generatedText = results;
         }
-        let responses = breakUpCommands(character.name, generatedText);
+        let responses = breakUpCommands(character.name, generatedText, username);
         let response = responses.join('\n');
         response = response.replace(new RegExp(removeAble, 'g'), '');
         console.log("Response: ", response);

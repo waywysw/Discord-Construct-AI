@@ -31,7 +31,7 @@ export async function doCharacterChat(message){
       generatedText = results;
     }
     let removeAble = `${character.name}:`;
-    let responses = breakUpCommands(character.name, generatedText);
+    let responses = breakUpCommands(character.name, generatedText, username);
     let response = responses.join('\n');
     response = response.replace(new RegExp(removeAble, 'g'), '');
     let text;
@@ -180,7 +180,7 @@ export async function doCharacterChat(message){
     // Join the lines back together
     return lines.join('\n');
   }
-  export function breakUpCommands(charName, commandString) {
+  export function breakUpCommands(charName, commandString, user = 'You') {
     let lines = commandString.split('\n');
     let formattedCommands = [];
     let currentCommand = '';
@@ -197,6 +197,9 @@ export async function doCharacterChat(message){
             currentCommand = lines[i];
         } else {
             // If the line doesn't start with a colon, it's a continuation of the current command or the first line
+            if(currentCommand.startsWith(`${user}:`) || currentCommand.startsWith(`user:`) || currentCommand.startsWith(`You:`) || currentCommand.startsWith(`<START>`)){
+                continue;
+            }
             if(currentCommand !== '' || isFirstLine){
                 currentCommand += (isFirstLine ? '' : '\n') + lines[i];
             }
