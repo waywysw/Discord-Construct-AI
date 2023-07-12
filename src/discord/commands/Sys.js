@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
 import { botSettings, generateText, getCharacter, CHARACTER_IMAGES_FOLDER} from '../../../server.js';
-import { getPrompt, parseTextEnd, saveConversation, sendMessage, getUserName } from '../Discord.js';
+import { getPrompt, breakUpCommands, saveConversation, sendMessage, getUserName } from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()
@@ -40,13 +40,14 @@ const command = {
         }else{
           generatedText = results;
         }
-        let removeAble = `${character.name}:`;
-        let response = parseTextEnd(generatedText)
+        let responses = breakUpCommands(character.name, generatedText);
+        let response = responses.join('\n');
+        response = response.replace(new RegExp(removeAble, 'g'), '');
         console.log("Response: ", response);
         let text;
-        text = `\n${message}\n${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
+        text = `\n${message}\n${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
         await saveConversation(interaction, charId, text);
-        await sendMessage(channelID, response[0].replace(/<user>/g, username))
+        await sendMessage(channelID, response.replace(/<user>/g, username))
 	},
 };
 export default command;

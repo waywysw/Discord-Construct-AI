@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
 import { botSettings, generateText, getCharacter} from '../../../server.js';
-import { getPrompt, parseTextEnd, saveConversation, getUserName  } from '../Discord.js';
+import { getPrompt, breakUpCommands, saveConversation, getUserName  } from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()
@@ -30,13 +30,14 @@ const command = {
         }else{
           generatedText = results;
         }
-        let removeAble = `${character.name}:`;
-        let response = parseTextEnd(generatedText)
+        let responses = breakUpCommands(character.name, generatedText);
+        let response = responses.join('\n');
+        response = response.replace(new RegExp(removeAble, 'g'), '');
         console.log("Response: ", response);
         let text;
-        text = `${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
+        text = `${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
         await saveConversation(interaction, charId, text);
-        await interaction.channel.send(response[0].replace(/<user>/g, username));
+        await interaction.channel.send(response.replace(/<user>/g, username));
         await interaction.editReply({content: '', empheral: true});
 	},
 };

@@ -31,24 +31,26 @@ export async function doCharacterChat(message){
       generatedText = results;
     }
     let removeAble = `${character.name}:`;
-    let response = parseTextEnd(generatedText)
+    let responses = breakUpCommands(character.name, generatedText);
+    let response = responses.join('\n');
+    response = response.replace(new RegExp(removeAble, 'g'), '');
     let text;
-    if(GlobalState.bias.length > 0 && response[0] !== undefined){
-      text = `${username}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
-    }else if(response[0] !== undefined){
-      text = `${username}: ${message.cleanContent}\n${character.name}: ${response[0].replace(/<user>/g, username).replace(removeAble, '')}\n`;
+    if(GlobalState.bias.length > 0 && response !== undefined){
+      text = `${username}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
+    }else if(response !== undefined){
+      text = `${username}: ${message.cleanContent}\n${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
     }
-    if(response[0] === undefined){
+    if(response === undefined){
       console.log("Response is undefined");
       return;
     }
     await saveConversation(message, charId, text);
     if (Math.random() < 0.75) {
       // 75% chance to reply directly to the message
-      message.reply(`${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}`);
+      message.reply(`${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}`);
     } else {
       // 25% chance to just send a message to the channel
-      message.channel.send(`${GlobalState.bias} ${response[0].replace(/<user>/g, username).replace(removeAble, '')}`);
+      message.channel.send(`${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}`);
     };
     GlobalState.bias = '';
   };
@@ -181,12 +183,38 @@ export async function doCharacterChat(message){
     // Join the lines back together
     return lines.join('\n');
   }
-  export function parseTextEnd(text) {
-    return text.split("\n")
-               .map(line => line.trim())
-               .filter(line => line !== "");
-  }
-  
+  export function breakUpCommands(charName, commandString) {
+    let lines = commandString.split('\n');
+    let formattedCommands = [];
+    let currentCommand = '';
+    let isFirstLine = true;
+    
+    for (let i = 0; i < lines.length; i++) {
+        // If the line starts with a colon, it's the start of a new command
+        if (lines[i].startsWith(`${charName}:`)) {
+            isFirstLine = false;
+            if (currentCommand !== '') {
+                // Push the current command to the formattedCommands array
+                formattedCommands.push(currentCommand);
+            }
+            currentCommand = lines[i];
+        } else {
+            // If the line doesn't start with a colon, it's a continuation of the current command or the first line
+            if(currentCommand !== '' || isFirstLine){
+                currentCommand += (isFirstLine ? '' : '\n') + lines[i];
+            }
+            if(isFirstLine) isFirstLine = false;
+        }
+    }
+    
+    // Don't forget to add the last command
+    if (currentCommand !== '') {
+        formattedCommands.push(currentCommand);
+    }
+    
+    return formattedCommands;
+}
+
   export function cleanUsername(username) {
     // Remove leading characters
     let cleaned = username.replace(/^[._-]+/, '');
