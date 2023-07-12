@@ -7,10 +7,7 @@ import fs from 'fs-extra';
 
 export async function doCharacterChat(message){
     let charId = botSettings.charId;
-    let endpoint = botSettings.endpoint;
     let endpointType = botSettings.endpointType;
-    let settings = botSettings.settings;
-    let hordeModel = botSettings.hordeModel;
     let prompt = await getPrompt(charId, message);
     let character = await getCharacter(charId);
     let results;
