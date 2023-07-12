@@ -19,8 +19,11 @@ export async function doCharacterChat(message){
     try{
       results = await generateText(prompt, username);
     } catch (error) {
-      console.error('Error:', error);
+      console.log('Error:', error)
       return;
+    }
+    if(!results){
+      console.log("No results returned from API");
     }
     results = results.results[0];
     let generatedText;

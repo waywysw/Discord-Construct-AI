@@ -744,6 +744,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         }
       } catch (error) {
         console.log(error);
+        results = false;
       }        
       break;
     case 'Ooba':
@@ -774,6 +775,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         }
       } catch (error) {
         console.log(error);
+        results = false;
       }
       break;
 
@@ -799,6 +801,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         results = { results: [response.data.choices[0].message.content]};
       } catch (error) {
         console.log(error);
+        results = false;
       }
       break;
     case 'Horde':
@@ -829,6 +832,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         }
       } catch (error) {
         console.log(error);
+        results = false;
       }
       break;
     case 'P-OAI':
@@ -852,6 +856,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         results = { results: [response.data.choices[0].message.content]};
       } catch (error) {
         console.log(error);
+        results = false;
       }
       break;
     case 'P-Claude':
@@ -874,6 +879,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         }
       } catch (error) {
         console.log(error);
+        results = false;
       }
       break;
     default:
