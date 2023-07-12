@@ -131,11 +131,8 @@ export async function doCharacterChat(message){
     let authorsNote = await fetchAuthorsNote(channelID, charId);
     
     let basePrompt = '';
-    if(character.name.length > 1){
-      basePrompt += character.name;
-    }
     if(character.description.length > 1){
-      basePrompt += ":\n" + character.description + '\n';
+      basePrompt += character.description + '\n';
     }
     if(character.scenario.length > 1){
       basePrompt += 'Scenario:\n' + character.scenario + '\n';
@@ -156,7 +153,7 @@ export async function doCharacterChat(message){
     }
     createdPrompt = cleanEmoji(createdPrompt);
     
-    return createdPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, user).replace(/\r/g, '');
+    return createdPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, user).replace(/\r/g, '').replace(/<USER>/g, user)
   };
   
   

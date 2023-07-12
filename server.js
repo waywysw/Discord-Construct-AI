@@ -729,7 +729,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
   if(stopList !== null){
     stops = stopList;
   } else {
-    stops = [`${configuredName}:`, 'You:'];
+    stops = [`${configuredName}:`, 'You:', '<START>', '<END>'];
   }
   switch (endpointType) {
     case 'Kobold':
@@ -770,8 +770,8 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       try{
         const oobaPayload = {
         'prompt': prompt,
-        'max_new_tokens': settings.max_length ? settings.max_length : 512,
         'do_sample': true,
+        'max_new_tokens': settings.max_tokens ? settings.max_tokens : 350,
         'temperature': settings.temperature ? settings.temperature : 0.9,
         'top_p': settings.top_p ? settings.top_p : 0.9,
         'typical_p': settings.typical ? settings.typical : 0.9,
@@ -782,11 +782,11 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         'top_k': settings.top_k ? settings.top_k : 0,
         'min_length': settings.min_length ? settings.min_length : 0,
         'add_bos_token': true,
-        'truncation_length': 2048,
         'ban_eos_token': true,
         'skip_special_tokens': true,
         'stopping_strings': stops
         }
+        console.log(oobaPayload)
         response = await axios.post(`${endpoint}/api/v1/generate`, oobaPayload);
         if (response.status === 200) {
           results = response.data['results'][0]['text'];
