@@ -36,7 +36,7 @@ export async function doCharacterChat(message){
     response = response.replace(new RegExp(removeAble, 'g'), '');
     let text;
     if(GlobalState.bias.length > 0 && response !== undefined){
-      text = `${username}:${message.cleanContent}\n${character.name}:${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
+      text = `${username}:${message.cleanContent}\n${character.name}:${GlobalState.bias}${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
     }else if(response !== undefined){
       text = `${username}:${message.cleanContent}\n${character.name}:${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
     }
