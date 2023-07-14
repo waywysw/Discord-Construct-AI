@@ -132,13 +132,13 @@ export async function doCharacterChat(message){
     
     let basePrompt = '';
     if(character.description.length > 1){
-      basePrompt += character.description;
+      basePrompt += character.description + '\n';
     }
     if(character.scenario.length > 1){
-      basePrompt += 'Scenario:\n' + character.scenario;
+      basePrompt += 'Scenario:\n' + character.scenario + '\n';
     }
     if(character.mes_example.length > 1){
-      basePrompt += 'Example Dialogue:\n' + character.mes_example;
+      basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
     }
     let createdPrompt = basePrompt + convo + character.name + ':';
     
