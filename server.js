@@ -904,11 +904,11 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
             'x-api-key': password
           },
         });
-        if(!claudeResponse.data.choices[0].message.content === undefined){
+        if(claudeResponse.data.choices[0].message.content !== undefined){
           results = { results: [claudeResponse.data.choices[0].message.content] };
         }else{
           results = false;
-          console.log(response.data)
+          console.log(claudeResponse)
         }
       } catch (error) {
         console.log(error);
