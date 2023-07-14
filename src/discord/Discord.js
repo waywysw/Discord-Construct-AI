@@ -36,9 +36,9 @@ export async function doCharacterChat(message){
     response = response.replace(new RegExp(removeAble, 'g'), '');
     let text;
     if(GlobalState.bias.length > 0 && response !== undefined){
-      text = `${username}: ${message.cleanContent}\n${character.name}: ${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
+      text = `${username}:${message.cleanContent}\n${character.name}:${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
     }else if(response !== undefined){
-      text = `${username}: ${message.cleanContent}\n${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
+      text = `${username}:${message.cleanContent}\n${character.name}:${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
     }
     if(response === undefined){
       console.log("Response is undefined");
@@ -120,7 +120,7 @@ export async function doCharacterChat(message){
       currentMessage = `${systemMessage}`;
     }if(!isSystem){
       user = await getUserName(channelID, message.author.username);
-      currentMessage = `${user}: ${message.cleanContent}`;
+      currentMessage = `${user}:${message.cleanContent}`;
     }if(isRegen){
       convo = removeLastLine(convo);
     }else{
@@ -143,7 +143,7 @@ export async function doCharacterChat(message){
     let createdPrompt = basePrompt + convo + character.name + ':';
     
     if(GlobalState.bias.length > 0){
-      createdPrompt += ' ' + GlobalState.bias;
+      createdPrompt += '' + GlobalState.bias;
     }
     if(!authorsNote.length === undefined){
       if(authorsNote.length > 0){
