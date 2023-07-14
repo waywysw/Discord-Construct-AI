@@ -152,7 +152,7 @@ export async function doCharacterChat(message){
       }
     }
     createdPrompt = cleanEmoji(createdPrompt);
-    createdPrompt = createdPrompt.replace(/^\s*\n+|\n+\s*$/g,'').replace(/\n\s*\n/g,'\n')
+    createdPrompt = createdPrompt.replace(/^\s*\n+|\n+\s*$/g,'').replace(/\n\s*\n/g,'\n').replace(/^\s*\n+|\n+\s*$/g,'').replace(/\n\s*\n/g,'\n').replace(/ +/g, ' ')
     return createdPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, user).replace(/\r/g, '').replace(/<USER>/g, user)
   };
   
