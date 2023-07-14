@@ -125,20 +125,20 @@ export async function doCharacterChat(message){
       convo = removeLastLine(convo);
     }else{
       if (!convo.includes(currentMessage)) {
-        convo += `\n`+ currentMessage + '\n';
+        convo += currentMessage + '\n';
       }
     }
     let authorsNote = await fetchAuthorsNote(channelID, charId);
     
     let basePrompt = '';
     if(character.description.length > 1){
-      basePrompt += character.description + '\n';
+      basePrompt += character.description;
     }
     if(character.scenario.length > 1){
-      basePrompt += 'Scenario:\n' + character.scenario + '\n';
+      basePrompt += 'Scenario:\n' + character.scenario;
     }
     if(character.mes_example.length > 1){
-      basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
+      basePrompt += 'Example Dialogue:\n' + character.mes_example;
     }
     let createdPrompt = basePrompt + convo + character.name + ':';
     
@@ -259,10 +259,10 @@ export async function doCharacterChat(message){
         return logString;
       } catch (err) {
         console.error('Error reading log file:', err);
-        return '<START>';
+        return '';
       }
     } else {
-      return '<START>';
+      return '';
     }
   }
   
