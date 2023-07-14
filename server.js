@@ -893,7 +893,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       console.log("P-Claude");
       try{
         const claudeResponse = await axios.post(endpoint + '/complete', {
-          "prompt": prompt + "\n\nAssistant:",
+          "prompt": "System:\n\n" + prompt + "\n\nAssistant:",
           "model": `claude-1-100k`,
           "temperature": settings.temperature ? settings.temperature : 0.9,
           "max_tokens_to_sample": settings.max_tokens ? settings.max_tokens : 350,
