@@ -39,11 +39,11 @@ export async function doCharacterChat(message){
       return;
     }
     if(GlobalState.bias.length > 0 && response !== undefined){
-      await saveConversation(message, charId, `${username}:${message.cleanContent}`);
-      await saveConversation(message, charId, `${character.name}:${GlobalState.bias}${response.replace(/<user>/g, username).replace(removeAble, '')}`);
+      await saveConversation(message, charId, `${username}: ${message.cleanContent}`);
+      await saveConversation(message, charId, `${character.name}: ${GlobalState.bias}${response.replace(/<user>/g, username).replace(removeAble, '')}`);
     }else if(response !== undefined){
-      await saveConversation(message, charId, `${username}:${message.cleanContent}`);
-      await saveConversation(message, charId, `${character.name}:${response.replace(/<user>/g, username).replace(removeAble, '')}`);
+      await saveConversation(message, charId, `${username}: ${message.cleanContent}`);
+      await saveConversation(message, charId, `${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}`);
     }
     if (Math.random() < 0.75) {
       // 75% chance to reply directly to the message
@@ -130,12 +130,12 @@ export async function doCharacterChat(message){
       currentMessage = `${systemMessage}`;
     }if(!isSystem){
       user = await getUserName(channelID, message.author.username);
-      currentMessage = `${user}:${message.cleanContent}`;
+      currentMessage = `${user}: ${message.cleanContent}`;
     }if(isRegen){
       convo = removeLastLine(convo);
     }else{
       if (!convo.includes(currentMessage)) {
-        convo += currentMessage + '\n';
+        convo += '\n' + currentMessage + '\n';
       }
     }
     let authorsNote = await fetchAuthorsNote(channelID, charId);
