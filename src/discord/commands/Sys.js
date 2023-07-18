@@ -18,20 +18,21 @@ const command = {
         let channelID = interaction.channelId;
         await interaction.editReply(`**System:**\n${GlobalState.sysMes}`)
         let charId = botSettings.charId;
-        let endpoint = botSettings.endpoint;
         let endpointType = botSettings.endpointType;
-        let settings = botSettings.settings;
-        let hordeModel = botSettings.hordeModel;
         let character = await getCharacter(charId);
         let prompt = await getPrompt(charId, interaction, true, GlobalState.sysMes)
         let results;
         console.log("Generating text...");
         let username = await getUserName(channelID, interaction.user.username);
-        try {
-            results = await generateText(endpointType, { endpoint: endpoint, configuredName: username, prompt: prompt, settings: settings, hordeModel: hordeModel});
+        try{
+          results = await generateText(prompt, username);
         } catch (error) {
-            console.error('Error:', error);
-            return;
+          console.log('Error:', error)
+          return;
+        }
+        if(results.results === undefined){
+          console.log("Results are undefined");
+          return;
         }
         results = results.results[0];
         let generatedText;
@@ -40,13 +41,18 @@ const command = {
         }else{
           generatedText = results;
         }
+        let removeAble = `${character.name}:`;
         let responses = breakUpCommands(character.name, generatedText, username);
         let response = responses.join('\n');
-        response = response.replace(new RegExp(removeAble, 'g'), '');
-        console.log("Response: ", response);
-        let text;
-        text = `\n${message}\n${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
-        await saveConversation(interaction, charId, text);
+        response = response.replace(new RegExp(removeAble, 'g'), '').replace(new RegExp('\n', 'g'), '').trim();
+        if(response === undefined){
+          console.log("Response is undefined");
+          return;
+        }
+        if(response !== undefined){
+          await saveConversation(interaction, charId, `${message}`);
+          await saveConversation(interaction, charId, `${character.name}: ${response.replace(/<user>/g, username).replace(removeAble, '')}`);
+        }
         await sendMessage(channelID, response.replace(/<user>/g, username))
 	},
 };

@@ -95,25 +95,21 @@ export async function doCharacterChat(message){
     return usernames;
   }
   
-  export function removeLastLines(filename, numLinesToRemove) {
+  export async function removeLastLines(filename, numLinesToRemove) {
     const pathName = path.join('./public/discord/logs/', filename);
     // Read the file into a string
-    let fileContent = fs.readFileSync(pathName, 'utf-8');
-  
-    // Split the string into lines
-    let lines = fileContent.split('\n');
-  
+    if(!fs.existsSync(pathName)){
+      return;
+    }
+    let fileContent = await fs.readJSON(pathName, 'utf-8');
     // Check if the number of lines to remove is greater than the total number of lines
-    if (numLinesToRemove >= lines.length) {
+    if (numLinesToRemove >= fileContent.messages.length) {
       // If it is, just clear the file
-      fs.writeFileSync(filename, '', 'utf-8');
+      fileContent.messages = [];
+      await fs.writeJSON(pathName, fileContent, 'utf8');
     } else {
-      // Otherwise, remove the last x lines
-      lines.splice(lines.length - numLinesToRemove, numLinesToRemove);
-    
-      // Join the lines back together and write back to the file
-      let newFileContent = lines.join('\n');
-      fs.writeFileSync(filename, newFileContent, 'utf-8');
+      fileContent = fileContent.messages.splice(0, fileContent.messages.length - numLinesToRemove);
+      await fs.writeJSON(pathName, fileContent, 'utf8');
     }
   }
   
@@ -124,7 +120,6 @@ export async function doCharacterChat(message){
     let currentMessage;
     let user;
     let convo = history;
-    
     if(isSystem){
       user = await getUserName(channelID, message.user.username);
       currentMessage = `${systemMessage}`;
@@ -138,7 +133,7 @@ export async function doCharacterChat(message){
         convo += '\n' + currentMessage + '\n';
       }
     }
-    let authorsNote = await fetchAuthorsNote(channelID, charId);
+    const authorsNote = await fetchAuthorsNote(channelID, charId);
     
     let basePrompt = '';
     if(character.description.length > 1){
@@ -155,9 +150,8 @@ export async function doCharacterChat(message){
     if(GlobalState.bias.length > 0){
       createdPrompt += '' + GlobalState.bias;
     }
-    if(!authorsNote.length === undefined){
+    if(authorsNote !== false){
       if(authorsNote.length > 0){
-        console.log("Author's note: ", authorsNote);
         createdPrompt = insertAtLineFromEnd(createdPrompt, GlobalState.authorsNoteDepth, authorsNote);
       }
     }
@@ -489,23 +483,25 @@ export async function setDiscordBotInfo(){
     });
   }
   
-export async function fetchAuthorsNote(channelID, name) {
+export async function fetchAuthorsNote(channelID, charId) {
 try {
-    let data = await _readFile(notesPath, 'utf8');
-    let notes = JSON.parse(data);
+    let notes = await fs.readJSON(notesPath, 'utf8');
 
     let channel = notes.channels.find(c => c.channelID === channelID);
 
     if (!channel) {
-    return false;
+      console.log('No channel found');
+      return false;
     }
 
-    let authorsNote = channel.notes.find(a => a.charId === name);
+    let authorsNote = channel.notes.find(a => a.charId === charId);
 
     if (authorsNote) {
-    return authorsNote.authorsNote;
+      console.log('Found authors note:', authorsNote.authorsNote);
+      return authorsNote.authorsNote;
     } else {
-    return false;
+      console.log('No authors note found');
+      return false;
     }
 
 } catch (err) {

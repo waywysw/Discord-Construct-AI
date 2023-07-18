@@ -13,7 +13,7 @@ const command = {
         await interaction.deferReply();
         const message = interaction.options.getString('bias');
         GlobalState.bias = message;
-        await interaction.editReply(`**Bias:**\n${GlobalState.bias}`)
+        await interaction.editReply({content: `**Bias:**\n${GlobalState.bias}`})
 	},
 };
 

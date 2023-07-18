@@ -13,27 +13,10 @@ const command = {
     async execute(interaction) {
         await interaction.deferReply();
         const lines = interaction.options.getInteger('lines');
-        const channel = interaction.channel;
-        let count = 0;
-        try {
-            const messages = await channel.messages.fetch({ limit: 100 });
-            for (const message of messages.values()) {
-                if (message.content.startsWith('.') || message.reference) {
-                    await message.delete();
-                } else if (count < lines) {
-                    await message.delete();
-                    count++;
-                } else {
-                    break;
-                }
-            }
-        } catch (error) {
-            console.log(error);
-        }
-        await interaction.editReply(`**Cleared ${count} messages from this channel.**`);
+        await interaction.editReply(`**Cleared ${count} messages from this channel's log.**`);
         const logName = `${interaction.channel.id}-${botSettings.charId}.log`;
         try {
-            removeLastLines(logName, lines);
+            await removeLastLines(logName, lines);
         } catch (error) {
             console.log('Error:', error);
         }
