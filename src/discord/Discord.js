@@ -33,18 +33,18 @@ export async function doCharacterChat(message){
     let removeAble = `${character.name}:`;
     let responses = breakUpCommands(character.name, generatedText, username);
     let response = responses.join('\n');
-    response = response.replace(new RegExp(removeAble, 'g'), '');
-    let text;
-    if(GlobalState.bias.length > 0 && response !== undefined){
-      text = `${username}:${message.cleanContent}\n${character.name}:${GlobalState.bias}${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
-    }else if(response !== undefined){
-      text = `${username}:${message.cleanContent}\n${character.name}:${response.replace(/<user>/g, username).replace(removeAble, '')}\n`;
-    }
+    response = response.replace(new RegExp(removeAble, 'g'), '').replace(new RegExp('\n', 'g'), '').trim();
     if(response === undefined){
       console.log("Response is undefined");
       return;
     }
-    await saveConversation(message, charId, text);
+    if(GlobalState.bias.length > 0 && response !== undefined){
+      await saveConversation(message, charId, `${username}:${message.cleanContent}`);
+      await saveConversation(message, charId, `${character.name}:${GlobalState.bias}${response.replace(/<user>/g, username).replace(removeAble, '')}`);
+    }else if(response !== undefined){
+      await saveConversation(message, charId, `${username}:${message.cleanContent}`);
+      await saveConversation(message, charId, `${character.name}:${response.replace(/<user>/g, username).replace(removeAble, '')}`);
+    }
     if (Math.random() < 0.75) {
       // 75% chance to reply directly to the message
       message.reply(`${GlobalState.bias} ${response.replace(/<user>/g, username).replace(removeAble, '')}`);
@@ -58,12 +58,22 @@ export async function doCharacterChat(message){
   export async function saveConversation(message, charId, text){
     const logName = `${message.channel.id}-${charId}.log`;
     const pathName = path.join('./public/discord/logs/', logName);
-  
+    let data;
     // Check if the directory exists, and if it doesn't, create it
     await fs.ensureDir(path.dirname(pathName));
-
-    // Then append text to the file (it will create the file if it doesn't exist)
-    await fs.appendFile(pathName, text);
+    //check if the file exists
+    if (fs.existsSync(pathName)) {
+      data = await fs.readJSON(pathName, 'utf8');
+      data.messages.push(text);
+      await fs.writeJSON(pathName, data, 'utf8');
+    } else {
+      data = {
+        'channelID': message.channel.id,
+        'charId': charId,
+        'messages': [text]
+      };
+      await fs.writeJSON(pathName, data, 'utf8');
+    }
   }
 
   export async function getStopList(message) {
@@ -170,6 +180,7 @@ export async function doCharacterChat(message){
     // Join the lines back together
     return lines.join('\n');
   }
+
   export function removeLastLine(history) {
     // Split the string into lines
     let lines = history.split('\n');
@@ -180,6 +191,7 @@ export async function doCharacterChat(message){
     // Join the lines back together
     return lines.join('\n');
   }
+  
   export function breakUpCommands(charName, commandString, user = 'You') {
     let lines = commandString.split('\n');
     let formattedCommands = [];
@@ -237,27 +249,23 @@ export async function doCharacterChat(message){
   async function getHistory(charId, channel, lines = null) {
     let logName = `${channel}-${charId}.log`;
     let pathName = path.join('./public/discord/logs/', logName);
-  
+    let messageString = '';
     if (fs.existsSync(pathName)) {
       try {
-        const data = fs.readFileSync(pathName, 'utf8');
-        const allLines = data.split('\n');
-        if(lines === true){
-          return allLines;
+        const data = await fs.readJSON(pathName, 'utf8');
+        console.log(data);
+        data.messages = data.messages.filter(message => message !== '');
+        for(let i = 0; i < data.messages.length; i++){
+          data.messages[i] = data.messages[i].replace(/<user>/g, '');
         }
-        let startIndex = Math.max(0, allLines.length - lines ? lines : 0);
-        let logString = '';
-  
-        for (let i = startIndex; i < allLines.length; i++) {
-          const line = allLines[i].trim();
-          if (line.length > 0) {
-            logString += line;
-            if (i < allLines.length - 1 && allLines[i + 1].trim().length > 0) {
-              logString += '\n';
-            }
-          }
+        if(lines) {
+          data.messages = data.messages.slice(-lines);
         }
-        return logString;
+        for(let i = 0; i < data.messages.length; i++){
+          data.messages[i] = data.messages[i].replace(/<user>/g, '');
+        }
+        messageString = data.messages.join('\n');
+        return messageString;
       } catch (err) {
         console.error('Error reading log file:', err);
         return '';
@@ -266,6 +274,7 @@ export async function doCharacterChat(message){
       return '';
     }
   }
+  
   
 export async function setDiscordBotInfo(){
     let character = await getCharacter(botSettings.charId);
