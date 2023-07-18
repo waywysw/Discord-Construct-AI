@@ -188,10 +188,11 @@ export async function doCharacterChat(message){
     
     for (let i = 0; i < lines.length; i++) {
         // If the line starts with a colon, it's the start of a new command
-        if (lines[i].startsWith(`${user}:`) || lines[i].startsWith('You:') || lines[i].startsWith('<START>') || lines[i].startsWith('<END>') || lines[i].startsWith('<USER>') || lines[i].toLowerCase().startsWith('user:') ) {
+        let lineToTest = lines[i].toLowerCase();
+        if (lineToTest.startsWith(`${user.toLowerCase()}:`) || lineToTest.startsWith('you:') || lineToTest.startsWith('<start>') || lineToTest.startsWith('<end>') || lineToTest.startsWith('<user>') || lineToTest.toLowerCase().startsWith('user:') ) {
           break;
         }
-        if (lines[i].startsWith(`${charName}:`)) {
+        if (lineToTest.startsWith(`${charName}:`)) {
             isFirstLine = false;
             if (currentCommand !== '') {
                 // Push the current command to the formattedCommands array
