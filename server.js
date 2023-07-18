@@ -766,9 +766,11 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       break;
     case 'Ooba':
       console.log("Ooba");
+      prompt = prompt.toString().replace(/<br>/g, '').replace(/\n\n/g, '').replace(/\\/g, "\\");
+      let newPrompt = prompt.toString();
       try{
         const oobaPayload = {
-        'prompt': prompt.replace(/<br>/g, '').replace(/\n\n/g, ''),
+        'prompt': newPrompt,
         'do_sample': true,
         'max_new_tokens': settings.max_tokens ? settings.max_tokens : 350,
         'temperature': settings.temperature ? settings.temperature : 0.9,
