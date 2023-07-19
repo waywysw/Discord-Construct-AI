@@ -117,7 +117,7 @@ export async function saveConversation(message, charId, text){
       fileContent.messages = [];
       await fs.writeJSON(pathName, fileContent, 'utf8');
     } else {
-      fileContent = fileContent.messages.splice(0, fileContent.messages.length - numLinesToRemove);
+      fileContent.messages = fileContent.messages.splice(0, fileContent.messages.length - numLinesToRemove);
       await fs.writeJSON(pathName, fileContent, 'utf8');
     }
   }
