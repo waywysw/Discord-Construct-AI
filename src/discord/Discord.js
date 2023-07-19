@@ -55,26 +55,35 @@ export async function doCharacterChat(message){
     GlobalState.bias = '';
   };
   
-  export async function saveConversation(message, charId, text){
-    const logName = `${message.channel.id}-${charId}.log`;
-    const pathName = path.join('./public/discord/logs/', logName);
-    let data;
-    // Check if the directory exists, and if it doesn't, create it
-    await fs.ensureDir(path.dirname(pathName));
-    //check if the file exists
-    if (fs.existsSync(pathName)) {
+export async function saveConversation(message, charId, text){
+  const logName = `${message.channel.id}-${charId}.log`;
+  const pathName = path.join('./public/discord/logs/', logName);
+  let data;
+  // Check if the directory exists, and if it doesn't, create it
+  await fs.ensureDir(path.dirname(pathName));
+  //check if the file exists
+  if (fs.existsSync(pathName)) {
+    try {
       data = await fs.readJSON(pathName, 'utf8');
-      data.messages.push(text);
-      await fs.writeJSON(pathName, data, 'utf8');
-    } else {
+    } catch (e) {
+      console.error("Error parsing JSON, defaulting to initial state.", e);
       data = {
         'channelID': message.channel.id,
         'charId': charId,
-        'messages': [text]
+        'messages': []
       };
-      await fs.writeJSON(pathName, data, 'utf8');
     }
+    data.messages.push(text);
+    await fs.writeJSON(pathName, data, 'utf8');
+  } else {
+    data = {
+      'channelID': message.channel.id,
+      'charId': charId,
+      'messages': [text]
+    };
+    await fs.writeJSON(pathName, data, 'utf8');
   }
+}
 
   export async function getStopList(message) {
     let usernames = [];

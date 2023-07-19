@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { botSettings, fetchCharacters } from '../../../server.js';
-import { fetchAuthorsNote } from "../Discord.js";
+import { fetchAuthorsNote, setDiscordBotInfo } from "../Discord.js";
 
 const command = {
   data: new SlashCommandBuilder()
@@ -17,6 +17,7 @@ const command = {
         return;
     }
     botSettings.charId = characterData.char_id;
+    setDiscordBotInfo(botSettings);
     await interaction.editReply({ content: `Swapped to character ${characterName}`, empheral: true });
   },
 };
