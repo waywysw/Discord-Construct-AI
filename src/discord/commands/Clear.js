@@ -13,7 +13,7 @@ const command = {
     async execute(interaction) {
         await interaction.deferReply();
         const lines = interaction.options.getInteger('lines');
-        await interaction.editReply(`**Cleared ${count} messages from this channel's log.**`);
+        await interaction.editReply(`**Cleared ${lines} messages from this channel's log.**`);
         const logName = `${interaction.channel.id}-${botSettings.charId}.log`;
         try {
             await removeLastLines(logName, lines);
