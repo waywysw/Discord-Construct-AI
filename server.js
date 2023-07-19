@@ -117,18 +117,21 @@ app.listen(port, () => {
 
 // GET /api/characters
 app.get('/characters', (req, res) => {
-    const characters = [];
+  let characters = fetchCharacters();
+  res.json(characters);
+});
+
+export async function fetchCharacters() {
+  const characters = [];
   
-    fs.readdirSync(CHARACTER_FOLDER).forEach((filename) => {
-      if (filename.endsWith('.json')) {
-        const characterData = JSON.parse(fs.readFileSync(path.join(CHARACTER_FOLDER, filename), 'utf-8'));
-        characters.push(characterData);
-      }
-    });
-  
-    res.json(characters);
+  fs.readdirSync(CHARACTER_FOLDER).forEach((filename) => {
+    if (filename.endsWith('.json')) {
+      const characterData = JSON.parse(fs.readFileSync(path.join(CHARACTER_FOLDER, filename), 'utf-8'));
+      characters.push(characterData);
+    }
   });
-  
+  return characters;
+}
   // POST /api/characters
 app.post('/characters', upload.single('avatar'), (req, res) => {
     const fields = {

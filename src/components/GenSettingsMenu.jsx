@@ -70,8 +70,10 @@ const GenSettingsMenu = () => {
     }, []);
 
     useEffect(() => {
+        const getSettings = async () => {
         const endpointType = localStorage.getItem('endpointType');
-        const settings = localStorage.getItem('generationSettings');
+        let discordBotSettings = await getDiscordSettings();
+        const settings = discordBotSettings.data.settings;
         if (endpointType === 'Kobold' || endpointType === 'Horde') {
             setInvalidEndpoint(false);
             if (settings) {
@@ -125,6 +127,8 @@ const GenSettingsMenu = () => {
             console.log('Endpoint type not recognized. Please check your settings.')
             setInvalidEndpoint(true);
         }
+        };
+        getSettings();
     }, []);
 
     const savePreset = async () => {

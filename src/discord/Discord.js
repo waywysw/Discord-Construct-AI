@@ -33,7 +33,7 @@ export async function doCharacterChat(message){
     let removeAble = `${character.name}:`;
     let responses = breakUpCommands(character.name, generatedText, username);
     let response = responses.join('\n');
-    response = response.replace(new RegExp(removeAble, 'g'), '').replace(new RegExp('\n', 'g'), '').trim();
+    response = response.replace(new RegExp(removeAble, 'g'), '');
     if(response === undefined){
       console.log("Response is undefined");
       return;
@@ -206,7 +206,6 @@ export async function doCharacterChat(message){
             }
             currentCommand = lines[i];
         } else {
-            // If the line doesn't start with a colon, it's a continuation of the current command or the first line
             if(currentCommand !== '' || isFirstLine){
                 currentCommand += (isFirstLine ? '' : '\n') + lines[i];
             }
