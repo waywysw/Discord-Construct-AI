@@ -116,8 +116,8 @@ app.listen(port, () => {
 */
 
 // GET /api/characters
-app.get('/characters', (req, res) => {
-  let characters = fetchCharacters();
+app.get('/characters', async (req, res) => {
+  let characters = await fetchCharacters();
   res.json(characters);
 });
 
