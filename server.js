@@ -782,6 +782,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         'repetition_penalty_range': settings.rep_pen_range ? settings.rep_pen_range : 512,
         'top_k': settings.top_k ? settings.top_k : 0,
         'min_length': settings.min_length ? settings.min_length : 0,
+        'truncation_length': settings.max_context_length ? settings.max_context_length : 2048,
         'add_bos_token': true,
         'ban_eos_token': false,
         'skip_special_tokens': true,
