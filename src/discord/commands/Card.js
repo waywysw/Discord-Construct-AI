@@ -10,7 +10,7 @@ const command = {
 		.setDescription(`Gets all details on the current character.`),
 	async execute(interaction) {
         let character = await getCharacter(botSettings.charId);
-        const attachment = new AttachmentBuilder(`${CHARACTER_IMAGES_FOLDER}${character.avatar}`, {name: `${character.name}`});
+        const attachment = new AttachmentBuilder(`${CHARACTER_IMAGES_FOLDER}${character.avatar}`, {name: `${character.name}.png`});
         let embed = new EmbedBuilder()
             .setTitle(character.name)
             .addFields(
@@ -19,6 +19,7 @@ const command = {
                 { name: 'Scenario', value: `${character.scenario || 'None'}`, inline: false },
                 { name: 'Example Dialogue', value: `${character.dialogue || 'None'}`, inline: false },
             )
+            .setImage(`attachment://${character.name}.png`)
             .setColor(0x0099FF)
         await interaction.reply({ embeds: [embed], files: [attachment]});
 	},
