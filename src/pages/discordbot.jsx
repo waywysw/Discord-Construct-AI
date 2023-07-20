@@ -45,9 +45,9 @@ const DiscordBot = () => {
       const response = await getBotStatus();
       setIsOn(response);
       const data = await getDiscordSettings();
-      setBotToken(data.data.token);
-      setAppId(data.data.appId);
-      setSelectedChannels(new Set(data.data.channels));
+      setBotToken(data.token);
+      setAppId(data.appId);
+      setSelectedChannels(new Set(data.channels));
       if (response) {
         const channelsData = await getAvailableChannels();
         setAvailableChannels(channelsData.data);
