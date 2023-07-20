@@ -717,7 +717,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
   // Rest of the code remains the same
   let char = 'Character';
   if(botSettings && botSettings.charId){
-    char = getCharacter(botSettings.charId).name;
+    char = await getCharacter(botSettings.charId).name;
   }
   let response;
   let results;
@@ -899,7 +899,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
       console.log("P-Claude");
       try{
         const claudeResponse = await axios.post(endpoint + '/complete', {
-          "prompt": `System:\nWrite ${char}'s next reply in a fictional chat between ${char} and ${configuredName}. Write 1 reply only in internet RP style, italicize actions, and avoid quotation marks. Use markdown. Be proactive, creative, and drive the plot and conversation forward. Write at least 1 sentence, up to 4. Always stay in character and avoid repetition.\n` + prompt + `\n\nAssistant:\n Okay, here is my response as ${char}:\n`,
+          "prompt": `System:\nWrite ${char}'s next reply in a fictional chat between ${char} and ${configuredName}. Write 1 reply only in internet RP style, italicize actions, and avoid quotation marks. Use markdown. Be proactive, creative, and drive the plot and conversation forward. Write at least 1 sentence, up to 4. Always stay in character and avoid repetition.\n` + prompt + `\nAssistant:\n Okay, here is my response as ${char}:\n`,
           "model": `claude-1.3-100k`,
           "temperature": settings.temperature ? settings.temperature : 0.9,
           "max_tokens_to_sample": settings.max_tokens ? settings.max_tokens : 350,
