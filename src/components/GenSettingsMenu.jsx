@@ -44,7 +44,8 @@ const GenSettingsMenu = () => {
     }, []);
 
     useEffect(() => {
-        var endpoint = localStorage.getItem('endpointType');
+        const getEndpoint = async () => {
+        var endpoint = await getDiscordSettings().endpoint;
         if(endpoint === 'AkikoBackend'){
             setEndpointType(endpoint);
             setInvalidEndpoint(false);
@@ -67,60 +68,58 @@ const GenSettingsMenu = () => {
             console.log('Endpoint type not recognized. Please check your settings.')
             setInvalidEndpoint(true);
         }
+        };
+        getEndpoint();
     }, []);
 
     useEffect(() => {
         const getSettings = async () => {
         const endpointType = localStorage.getItem('endpointType');
         let discordBotSettings = await getDiscordSettings();
-        const settings = discordBotSettings.data.settings;
+        const settings = discordBotSettings.settings;
         if (endpointType === 'Kobold' || endpointType === 'Horde') {
             setInvalidEndpoint(false);
             if (settings) {
-                const parsedSettings = settings;
-                console.log(parsedSettings);
-                setMaxContextLength(parsedSettings.max_context_length);
-                setMaxLength(parsedSettings.max_length);
-                setMinLength(parsedSettings.min_length);
-                setRepPen(parsedSettings.rep_pen);
-                setRepPenRange(parsedSettings.rep_pen_range);
-                setRepPenSlope(parsedSettings.rep_pen_slope);
-                setSamplerFullDeterminism(parsedSettings.sampler_full_determinism);
-                setSingleline(parsedSettings.singleline);
-                setTemperature(parsedSettings.temperature);
-                setTfs(parsedSettings.tfs);
-                setTopA(parsedSettings.top_a);
-                setTopK(parsedSettings.top_k);
-                setTopP(parsedSettings.top_p);
-                setTypical(parsedSettings.typical);
-                setSamplerOrder(parsedSettings.sampler_order);
+                setMaxContextLength(settings.max_context_length);
+                setMaxLength(settings.max_length);
+                setMinLength(settings.min_length);
+                setRepPen(settings.rep_pen);
+                setRepPenRange(settings.rep_pen_range);
+                setRepPenSlope(settings.rep_pen_slope);
+                setSamplerFullDeterminism(settings.sampler_full_determinism);
+                setSingleline(settings.singleline);
+                setTemperature(settings.temperature);
+                setTfs(settings.tfs);
+                setTopA(settings.top_a);
+                setTopK(settings.top_k);
+                setTopP(settings.top_p);
+                setTypical(settings.typical);
+                setSamplerOrder(settings.sampler_order);
             }
         } else if(endpointType === 'OAI' || endpointType === 'P-OAI' || endpointType === 'P-Claude'){
             setInvalidEndpoint(false);
             if (settings) {
-                const parsedSettings = JSON.parse(settings);
-                setMaxLength(parsedSettings.max_length);
-                setTemperature(parsedSettings.temperature);
+                setMaxLength(settings.max_length);
+                setTemperature(settings.temperature);
             }
         }else if(endpointType === 'Ooba'){
             setInvalidEndpoint(false);
             if (settings) {
-                const parsedSettings = JSON.parse(settings);
-                setMaxContextLength(parsedSettings.max_context_length);
-                setMaxLength(parsedSettings.max_length);
-                setRepPen(parsedSettings.rep_pen);
-                setMinLength(parsedSettings.min_length);
-                setRepPenRange(parsedSettings.rep_pen_range);
-                setRepPenSlope(parsedSettings.rep_pen_slope);
-                setSamplerFullDeterminism(parsedSettings.sampler_full_determinism);
-                setSingleline(parsedSettings.singleline);
-                setTemperature(parsedSettings.temperature);
-                setTfs(parsedSettings.tfs);
-                setTopA(parsedSettings.top_a);
-                setTopK(parsedSettings.top_k);
-                setTopP(parsedSettings.top_p);
-                setTypical(parsedSettings.typical);
-                setSamplerOrder(parsedSettings.sampler_order);
+                setMaxContextLength(settings.max_context_length);
+                setMaxLength(settings.max_length);
+                setRepPen(settings.rep_pen);
+                setMinLength(settings.min_length);
+                setRepPenRange(settings.rep_pen_range);
+                setRepPenSlope(settings.rep_pen_slope);
+                setSamplerFullDeterminism(settings.sampler_full_determinism);
+                setSingleline(settings.singleline);
+                setTemperature(settings.temperature);
+                setTfs(settings.tfs);
+                setTopA(settings.top_a);
+                setTopK(settings.top_k);
+                setTopP(settings.top_p);
+                setTypical(settings.typical);
+                setSamplerOrder(settings.sampler_order);
             }
         
         }else{
@@ -160,8 +159,9 @@ const GenSettingsMenu = () => {
             console.error(error);
         }
         let discord = await getDiscordSettings();
-        discord.data.settings = settings;
-        await saveDiscordConfig(discord.data);
+        console.log(discord);
+        discord.settings = settings;
+        await saveDiscordConfig(discord);
     };
 
     const loadPreset = async (presetName) => {
@@ -185,8 +185,8 @@ const GenSettingsMenu = () => {
             setSamplerOrder(parsedSettings.sampler_order);
             setPresetName(presetName);
             let discord = await getDiscordSettings();
-            discord.data.settings = settings;
-            await saveDiscordConfig(discord.data);
+            discord.settings = settings;
+            await saveDiscordConfig(discord);
         } else {
             console.error(`Preset with name ${presetName} not found`);
         }
@@ -209,10 +209,9 @@ const GenSettingsMenu = () => {
             typical: parseFloat(typical),
             sampler_order: samplerOrder,
         };
-        localStorage.setItem('generationSettings', JSON.stringify(settings));
         let discord = await getDiscordSettings();
-        discord.data.settings = settings;
-        await saveDiscordConfig(discord.data);
+        discord.settings = settings;
+        await saveDiscordConfig(discord);
     };
 
     return (

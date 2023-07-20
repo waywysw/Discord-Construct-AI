@@ -15,7 +15,7 @@ export async function stopDisBot(){
 }
 export async function getDiscordSettings(){
     const response = await axios.get(`${JS_API}/discord-bot/config`);
-    return response;
+    return response.data;
 }
 export async function saveDiscordConfig(data){
     const response = await axios.post(`${JS_API}/discord-bot/config`, data);
