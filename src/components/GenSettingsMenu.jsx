@@ -77,7 +77,7 @@ const GenSettingsMenu = () => {
         if (endpointType === 'Kobold' || endpointType === 'Horde') {
             setInvalidEndpoint(false);
             if (settings) {
-                const parsedSettings = JSON.parse(settings);
+                const parsedSettings = settings;
                 console.log(parsedSettings);
                 setMaxContextLength(parsedSettings.max_context_length);
                 setMaxLength(parsedSettings.max_length);
