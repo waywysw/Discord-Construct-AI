@@ -17,7 +17,7 @@ const command = {
                 .setRequired(true)),
 	async execute(interaction) {
         await interaction.deferReply();
-        const message = interaction.options.getString('systemmessage');
+        const message = interaction.options.getString('message');
         const name = interaction.options.getString('name');
         interaction.editReply(`${name}: ${message}`)
         let channelID = interaction.channel.id;
