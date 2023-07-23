@@ -34,7 +34,6 @@ export async function doCharacterChat(message){
     let removeAble = `${character.name}:`;
     let responses = breakUpCommands(character.name, generatedText, username, stopList);
     let response = responses.join('\n');
-    response = response.replace(new RegExp(removeAble, 'g'), '');
     if(response === undefined){
       console.log("Response is undefined");
       return;
@@ -200,7 +199,8 @@ export async function saveConversation(message, charId, text){
             isFirstLine = false;
             if (currentCommand !== '') {
                 // Push the current command to the formattedCommands array
-                formattedCommands.push(currentCommand);
+                currentCommand = currentCommand.replace(new RegExp(`${charName}:`, 'g'), '')
+                formattedCommands.push(currentCommand.trim());
             }
             currentCommand = lines[i];
         } else {
