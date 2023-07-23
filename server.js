@@ -717,7 +717,8 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
   // Rest of the code remains the same
   let char = 'Character';
   if(botSettings && botSettings.charId){
-    char = await getCharacter(botSettings.charId).name;
+    char = await getCharacter(botSettings.charId);
+    char = char.name;
   }
   let response;
   let results;
