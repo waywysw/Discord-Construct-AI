@@ -38,5 +38,5 @@ export async function createPreset(data){
 
 export async function fetchPresets(){
     const response = await axios.get(`${JS_API}/text/preset`);
-    return response;
+    return response.data.presets;
 }
