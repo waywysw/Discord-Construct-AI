@@ -24,7 +24,7 @@ const command = {
         let charId = botSettings.charId;
         let endpointType = botSettings.endpointType;
         let character = await getCharacter(charId);
-        let prompt = await getPrompt(charId, interaction, true, GlobalState.sysMes)
+        let prompt = await getPrompt(charId, interaction, true, `${name}: ${message}`)
         let results;
         console.log("Generating text...");
         let username = await getUserName(channelID, interaction.user.username);
