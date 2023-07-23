@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import GlobalState from '../GlobalState.js';
 import { botSettings, generateText, getCharacter, CHARACTER_IMAGES_FOLDER} from '../../../server.js';
-import { getPrompt, breakUpCommands, saveConversation, sendMessage, getUserName } from '../Discord.js';
+import { getPrompt, breakUpCommands, saveConversation, sendMessage, getUserName, getStopList } from '../Discord.js';
 
 const command = {
 	data: new SlashCommandBuilder()
@@ -15,7 +15,7 @@ const command = {
         await interaction.deferReply();
         const message = interaction.options.getString('systemmessage');
         GlobalState.sysMes = message;
-        let channelID = interaction.channelId;
+        let channelID = interaction.channel.id;
         await interaction.editReply(`**System:**\n${GlobalState.sysMes}`)
         let charId = botSettings.charId;
         let endpointType = botSettings.endpointType;
@@ -24,8 +24,9 @@ const command = {
         let results;
         console.log("Generating text...");
         let username = await getUserName(channelID, interaction.user.username);
+        let stopList = await getStopList(interaction.guild.id, channelID)
         try{
-          results = await generateText(prompt, username);
+          results = await generateText(prompt, username, stopList);
         } catch (error) {
           console.log('Error:', error)
           return;
@@ -42,7 +43,7 @@ const command = {
           generatedText = results;
         }
         let removeAble = `${character.name}:`;
-        let responses = breakUpCommands(character.name, generatedText, username);
+        let responses = breakUpCommands(character.name, generatedText, username, stopList);
         let response = responses.join('\n');
         response = response.replace(new RegExp(removeAble, 'g'), '').replace(new RegExp('\n', 'g'), '').trim();
         if(response === undefined){

@@ -730,7 +730,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
   }
   let stops;
   if(stopList !== null){
-    stops = stopList;
+    stops = ['You:', '<START>', '<END>', ...stopList];
   } else {
     stops = [`${configuredName}:`, 'You:', '<START>', '<END>'];
   }

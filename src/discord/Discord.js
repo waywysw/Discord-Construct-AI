@@ -12,9 +12,10 @@ export async function doCharacterChat(message){
     let character = await getCharacter(charId);
     let results;
     let username = await getUserName(message.channel.id, message.author.username);
+    let stopList = await getStopList(message.guild.id, message.channel.id);
     console.log("Generating text...")
     try{
-      results = await generateText(prompt, username);
+      results = await generateText(prompt, username, stopList);
     } catch (error) {
       console.log('Error:', error)
       return;
@@ -31,7 +32,7 @@ export async function doCharacterChat(message){
       generatedText = results;
     }
     let removeAble = `${character.name}:`;
-    let responses = breakUpCommands(character.name, generatedText, username);
+    let responses = breakUpCommands(character.name, generatedText, username, stopList);
     let response = responses.join('\n');
     response = response.replace(new RegExp(removeAble, 'g'), '');
     if(response === undefined){
@@ -84,25 +85,6 @@ export async function saveConversation(message, charId, text){
     await fs.writeJSON(pathName, data, 'utf8');
   }
 }
-
-  export async function getStopList(message) {
-    let usernames = [];
-    
-    // Fetch all members from the guild where the message was sent
-    await message.guild.members.fetch().then(members => {
-        members.each(member => {
-            // Check if the member is not the author of the message
-            if(!(message.author.id === member.user.id)) {
-                // Format the username as per the request
-                usernames.push(`${member.user.username}:`);
-            }
-        });
-    }).catch(console.error);
-    
-    usernames.push('You:');
-    
-    return usernames;
-  }
   
   export async function removeLastLines(filename, numLinesToRemove) {
     const pathName = path.join('./public/discord/logs/', filename);
@@ -195,7 +177,7 @@ export async function saveConversation(message, charId, text){
     return lines.join('\n');
   }
   
-  export function breakUpCommands(charName, commandString, user = 'You') {
+  export function breakUpCommands(charName, commandString, user = 'You', stopList = null) {
     let lines = commandString.split('\n');
     let formattedCommands = [];
     let currentCommand = '';
@@ -204,8 +186,15 @@ export async function saveConversation(message, charId, text){
     for (let i = 0; i < lines.length; i++) {
         // If the line starts with a colon, it's the start of a new command
         let lineToTest = lines[i].toLowerCase();
-        if (lineToTest.startsWith(`${user.toLowerCase()}:`) || lineToTest.startsWith('you:') || lineToTest.startsWith('<start>') || lineToTest.startsWith('<end>') || lineToTest.startsWith('<user>') || lineToTest.toLowerCase().startsWith('user:') ) {
+        if (lineToTest.startsWith(`${user.toLowerCase()}:`) || lineToTest.startsWith('you:') || lineToTest.startsWith('<start>') || lineToTest.startsWith('<end>') || lineToTest.startsWith('<user>') || lineToTest.toLowerCase().startsWith('user:')) {
           break;
+        }
+        if(stopList !== null){
+          for(let j = 0; j < stopList.length; j++){
+            if(lineToTest.startsWith(`${stopList[j].toLowerCase()}`)){
+              break;
+            }
+          }
         }
         if (lineToTest.startsWith(`${charName}:`)) {
             isFirstLine = false;
@@ -566,4 +555,21 @@ export async function regenMessage(message){
   let elementsAfter = logs.slice(index + 1, logs.length);
   let newLogs = elementsBefore.concat(elementsAfter);
   let newLogString = newLogs.join('\n');
+}
+
+export async function getStopList(guildId, channelID){
+  console.log("Getting stop list...");
+  let guild = disClient.guilds.cache.get(guildId);
+  let memberList = [];
+  guild.members.cache.forEach(member => {
+    if(member.user.id !== disClient.user.id){
+      memberList.push(member.user.username);
+    }
+  });
+  for(let i = 0; i < memberList.length; i++){
+    let alias = await getUserName(channelID, memberList[i]);
+    memberList[i] = `${alias}:`
+  }
+  console.log("Stop list fetched...");
+  return memberList;
 }
