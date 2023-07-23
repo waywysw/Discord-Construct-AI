@@ -775,7 +775,7 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
         const oobaPayload = {
         'prompt': newPrompt,
         'do_sample': true,
-        'max_new_tokens': settings.max_tokens ? settings.max_tokens : 350,
+        'max_new_tokens': settings.max_length ? settings.max_length : 350,
         'temperature': settings.temperature ? settings.temperature : 0.9,
         'top_p': settings.top_p ? settings.top_p : 0.9,
         'typical_p': settings.typical ? settings.typical : 0.9,
