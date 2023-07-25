@@ -105,6 +105,9 @@ export async function saveConversation(message, charId, text){
   
   export async function getPrompt(charId, message, isSystem = false, systemMessage = null, isRegen = false){
     let channelID = message.channel.id;
+    if(isRegen){
+      await removeLastMessage(charId, channelID);
+    }
     let history = await getHistory(charId, channelID, GlobalState.historyLines);
     let character = await getCharacter(charId);
     let currentMessage;
@@ -116,9 +119,7 @@ export async function saveConversation(message, charId, text){
     }if(!isSystem){
       user = await getUserName(channelID, message.author.username);
       currentMessage = `${user}: ${message.cleanContent}`;
-    }if(isRegen){
-      convo = removeLastLine(convo);
-    }else{
+    }if(!isRegen){
       if (!convo.includes(currentMessage)) {
         convo += '\n' + currentMessage + '\n';
       }
@@ -165,17 +166,17 @@ export async function saveConversation(message, charId, text){
     return lines.join('\n');
   }
 
-  export function removeLastLine(history) {
-    // Split the string into lines
-    let lines = history.split('\n');
-  
-    // Remove the last line
-    lines.pop();
-  
-    // Join the lines back together
-    return lines.join('\n');
+  export async function removeLastMessage(charId, channelID){
+    let logName = `${channelID}-${charId}.log`;
+    let pathName = path.join('./public/discord/logs/', logName);
+    if(!fs.existsSync(pathName)){
+      return;
+    }else{
+      let data = fs.readJSON(pathName, 'utf8');
+      data.messages = data.messages.slice(0, -1);
+      await fs.promises.writeFile(pathName, JSON.stringify(data, null, 2));
+    }
   }
-  
   export function breakUpCommands(charName, commandString, user = 'You', stopList = null) {
     let lines = commandString.split('\n');
     let formattedCommands = [];
