@@ -9,7 +9,7 @@ import multer from 'multer';
 import axios from 'axios';
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import { v4 as uuidv4 } from 'uuid';
-import { Configuration, OpenAIApi } from "openai"; // use default import syntax
+import { Configuration, OpenAIApi } from "openai";
 import extract from 'png-chunks-extract';
 import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
