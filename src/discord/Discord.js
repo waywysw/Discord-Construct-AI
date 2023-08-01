@@ -182,7 +182,10 @@ export async function saveConversation(message, charId, text){
     let formattedCommands = [];
     let currentCommand = '';
     let isFirstLine = true;
-    
+    if(botSettings.doMultiLine === false){
+      lines = lines.slice(0, 1);
+      return lines;
+    }
     for (let i = 0; i < lines.length; i++) {
         // If the line starts with a colon, it's the start of a new command
         let lineToTest = lines[i].toLowerCase();

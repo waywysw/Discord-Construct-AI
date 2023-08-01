@@ -5,6 +5,7 @@ import { FiRefreshCcw, FiSave } from 'react-icons/fi';
 import { getSettings } from '../components/chatapi';
 import CurrentCharacter from '../components/charactercomponents/CurrentCharacter';
 import GenSettingsMenu from '../components/GenSettingsMenu';
+import ReactSwitch from 'react-switch';
 
 
 const DiscordBot = () => {
@@ -17,6 +18,8 @@ const DiscordBot = () => {
   const [settings, setSettings] = useState({});
   const [activeServerId, setActiveServerId] = useState(null);
   const [selectedChannels, setSelectedChannels] = useState(new Set());
+  const [stopBrackets, setStopBrackets] = useState(false);
+  const [doMultiLine, setDoMultiLine] = useState(false);
   const [botInvite, setBotInvite] = useState('');
   const [appId, setAppId] = useState('');
 
@@ -47,6 +50,8 @@ const DiscordBot = () => {
       const data = await getDiscordSettings();
       setBotToken(data.token);
       setAppId(data.appId);
+      setDoMultiLine(data.doMultiLine);
+      setStopBrackets(data.stopBrackets);
       setSelectedChannels(new Set(data.channels));
       if (response) {
         const channelsData = await getAvailableChannels();
@@ -98,7 +103,9 @@ const DiscordBot = () => {
       "endpoint" : endpoint,
       "endpointType" : endpointType,
       "hordeModel" : hordeModel,
-      "settings" : settings
+      "settings" : settings,
+      "stopBrackets" : stopBrackets ? true : true,
+      "doMultiLine": doMultiLine ? true : false
     }
     saveDiscordConfig(data);
   };  
@@ -118,18 +125,27 @@ const DiscordBot = () => {
       return updatedChannels;
     });
   };
-
   return (
     <>
       <h1 className='settings-panel-header text-xl font-bold'>Discord Bot Configuration</h1>
       <div className='settings-panel' ref={settingsPanelRef}>
-        <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 grid-flow-dense gap-4">
           <div className="settings-box" id='on-switch'>
             <h2 className='text-xl font-bold mb-4 text-center mx-auto'>On/Off Switch</h2>
             <RxDiscordLogo className="discord-logo" />
-            <button className={`discord-button ${isOn ? 'discord-button-on' : ''}`} onClick={handleToggle}>
-              {isOn ? 'ON' : 'OFF'}
-            </button>
+            <ReactSwitch
+              onChange={handleToggle}
+              checked={isOn}
+              onColor="#86d3ff"
+              onHandleColor="#2693e6"
+              handleDiameter={30}
+              uncheckedIcon={false}
+              checkedIcon={false}
+              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+              height={20}
+              width={48}
+            />
             {isOn ? 
             <button>
               <a href={botInvite} target="_blank" rel="noreferrer" className="aspect-w-1 aspect-h-1 rounded-lg shadow-md backdrop-blur-md p-2 w-16 border-2 border-solid border-gray-500 outline-none justify-center cursor-pointer transition-colors hover:bg-blue-600 text-selected-text">Invite Bot</a>
@@ -188,6 +204,40 @@ const DiscordBot = () => {
           <div className="settings-box" id='settings'>
             <h2 className="text-xl font-bold mb-4 text-center mx-auto">Generation Settings</h2>
             <GenSettingsMenu />
+          </div>
+          <div className="settings-box" id='brackets'>
+            <h2 className="text-xl font-bold mb-4 text-center mx-auto">Stop Brackets</h2>
+            <div className="flex flex-row items-center justify-center">
+              <ReactSwitch
+                onChange={setStopBrackets ? () => setStopBrackets(false) : () => setStopBrackets(true)}
+                checked={stopBrackets}
+                onColor="#86d3ff"
+                onHandleColor="#2693e6"
+                handleDiameter={30}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                height={20}
+                width={48}
+              />
+            </div>
+            <h2 className="text-xl font-bold mb-4 text-center mx-auto">Multi Line</h2>
+            <div className="flex flex-row items-center justify-center">
+              <ReactSwitch
+                onChange={setDoMultiLine ? () => setDoMultiLine(false) : () => setDoMultiLine(true)}
+                checked={doMultiLine}
+                onColor="#86d3ff"
+                onHandleColor="#2693e6"
+                handleDiameter={30}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                height={20}
+                width={48}
+              />
+            </div>
           </div>
         </div>
         <div className="items-center flex flex-col mt-4">

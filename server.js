@@ -735,6 +735,9 @@ export const generateText = async (prompt, configuredName = 'You', stopList = nu
   } else {
     stops = [`${configuredName}:`, 'You:', '<START>', '<END>'];
   }
+  if(botSettings.stopBrackets){
+    stops.push('[', ']');
+  }
   switch (endpointType) {
     case 'Kobold':
       console.log("Kobold");
@@ -1064,6 +1067,9 @@ try {
     hordeModel: '',
     password: '',
     settings: {},
+    stopBrackets : false,
+    doMultiLine: false,
+    appId: ''
   };
 
   fs.writeFileSync('./public/discord/discordBot.json', JSON.stringify(botSettings, null, 2), 'utf-8');
@@ -1206,7 +1212,7 @@ app.get('/discord-bot/stop', (req, res) => {
 });
 
 app.get('/discord-bot/status', (req, res) => {
-    res.send(botReady)
+  res.send(botReady)
 });
 
 app.get('/discord-bot/config', (req, res) => {
@@ -1215,14 +1221,13 @@ app.get('/discord-bot/config', (req, res) => {
 
 app.post('/discord-bot/config', (req, res) => {
   botSettings = req.body;
-  fs.writeFile(`./public/discord/discordBot.json`, JSON.stringify(botSettings), (err) => {
-      if (err) {
-          res.send('Failed to write to file');
-      } else {
-          res.send('Successfully wrote to file');
-      }
-  });
+  saveBotSettings(botSettings);
 });
+
+export function saveBotSettings(botSettings){
+  botSettings = botSettings;
+  fs.writeFileSync('./public/discord/discordBot.json', JSON.stringify(botSettings, null, 2), 'utf-8');
+}
 
 app.get('/discord-bot/guilds', (req, res) => {
   if (!botReady) {
