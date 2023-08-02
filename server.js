@@ -14,8 +14,8 @@ import extract from 'png-chunks-extract';
 import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import jimp from 'jimp';
-import { Client, GatewayIntentBits, Collection, REST, Routes, Partials } from 'discord.js';
-import { cleanEmoji, getUserName, saveConversation, setDiscordBotInfo, doCharacterChat } from './src/discord/Discord.js';
+import { Client, GatewayIntentBits, Collection, REST, Routes, Partials, Events } from 'discord.js';
+import { cleanEmoji, getUserName, saveConversation, setDiscordBotInfo, doCharacterChat, removeMessageFromLog, regenerateMessage } from './src/discord/Discord.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1035,12 +1035,13 @@ app.get('/text/preset', async (req, res) => {
 ##                                        ##
 ############################################
 */
-// Create a new client instance
-export let disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
+let intents = { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
   GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
   GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
-  GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
-], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] });
+  GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
+], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] };
+// Create a new client instance
+export let disClient = new Client(intents);
 
 disClient.commands = new Collection();
 
@@ -1169,11 +1170,7 @@ app.get('/discord-bot/start', (req, res) => {
           message: 'Failed to log in to Discord. Token might be invalid.',
           error: error.toString() 
         });
-        disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
-          GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
-          GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
-          GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
-        ], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] });
+        disClient = new Client(intents);
         disClient.commands = new Collection();
       });
       res.send('Bot started');
@@ -1196,11 +1193,7 @@ app.get('/discord-bot/start', (req, res) => {
 app.get('/discord-bot/stop', (req, res) => {
   if (botReady) {
       disClient.destroy();
-      disClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, 
-        GatewayIntentBits.MessageContent, GatewayIntentBits.GuildEmojisAndStickers, 
-        GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions,
-        GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildModeration,
-      ], partials: [Partials.Channel, Partials.GuildMember, Partials.User, Partials.Reaction, Partials.Message] });
+      disClient = new Client(intents);
       disClient.commands = new Collection();
       botReady = false;
       res.send('Bot stopped');
@@ -1295,7 +1288,9 @@ disClient.on('messageCreate', async (message) => {
   if(message.attachments.size > 0){
     return;
   }
-  if (message.author.id === disClient.user.id){
+  if (message.author.id === disClient.user.id && message.webhookId === null){
+    message.react('♻️');
+    message.react('🗑️');
     return;
   }
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
@@ -1329,7 +1324,8 @@ disClient.on('messageCreate', async (message) => {
   }
 });
 
-disClient.on('messageReactionAdd', async (reaction, user) => {
+disClient.on(Events.MessageReactionAdd, async (reaction, user) => {
+  console.log('Reaction added to message')
   if (user.bot) return;
   if (reaction.partial) {
     try {
@@ -1339,13 +1335,14 @@ disClient.on('messageReactionAdd', async (reaction, user) => {
       return;
     }
   }
-  if (reaction.message.author.id === disClient.user.id){
-    console.log('Reaction added to bot message')
-    if(reaction.emoji.name === '♻️'){
-      reaction.message.edit()
+  if(reaction.emoji.name === '♻️'){
+    let response = await regenerateMessage(reaction.message.channel.id, reaction.message);
+    if(response){
+      reaction.message.edit({content: response});
     }
-    if(reaction.emoji.name === '🗑️'){
-      reaction.message.delete()
-    }
+  }
+  if(reaction.emoji.name === '🗑️'){
+    await removeMessageFromLog(reaction.message.channel.id, reaction.message.cleanContent);
+    reaction.message.delete()
   }
 });

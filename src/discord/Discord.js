@@ -577,3 +577,76 @@ export async function getStopList(guildId, channelID){
   console.log("Stop list fetched...");
   return memberList;
 }
+
+export async function removeMessageFromLog(channelID, messageContent){
+  let charId = botSettings.charId;
+  let logName = `${channelID}-${charId}.log`;
+  let pathName = path.join('./public/discord/logs/', logName);
+  let data = await fs.readJSON(pathName, 'utf8');
+  let index = data.messages.findIndex(log => log.includes(messageContent));
+  let elementsBefore;
+  if (index != -1) { 
+    elementsBefore = data.messages.slice(0, index);
+  } else {
+    console.log('No log contains the original content');
+    return;
+  }
+  let elementsAfter = data.messages.slice(index + 1, data.messages.length);
+  let newLogs = elementsBefore.concat(elementsAfter);
+  data.messages = newLogs;
+  await fs.writeJSON(pathName, data, 'utf8');
+}
+
+export async function regenerateMessage(channelID, message){
+  let charId = botSettings.charId;
+  let character = await getCharacter(charId);
+  let username = await getUserName(message.channel.id, message.author.username);
+  let logName = `${channelID}-${charId}.log`;
+  let pathName = path.join('./public/discord/logs/', logName);
+  let data = await fs.readJSON(pathName, 'utf8');
+  let index = data.messages.findIndex(log => log.includes(message.cleanContent));
+  let elementsBefore;
+  if (index != -1) { 
+    elementsBefore = data.messages.slice(0, index);
+  } else {
+    console.log('No log contains the original content');
+    return;
+  }
+  let elementsAfter = data.messages.slice(index + 1, data.messages.length);
+  let newLogString = elementsBefore.join('\n') + '\n';
+  let stopList = await getStopList(message.guild.id, message.channel.id);
+  let basePrompt = await getBasePrompt();
+  let newPrompt = basePrompt + newLogString + '\n' + character.name + ':';
+  newPrompt = newPrompt.replace(/{{char}}/g, character.name).replace(/{{user}}/g, username).replace(/\r/g, '').replace(/<USER>/g, username);
+  let newResults = await generateText(newPrompt, username, stopList);
+  let newGeneratedText;
+  if(botSettings.endpointType === 'Kobold' || botSettings.endpointType === 'Horde'){
+    newGeneratedText = newResults.results[0]['text'];
+  }else{
+    newGeneratedText = newResults.results[0];
+  }
+  console.log(newGeneratedText);
+  let newResponses = breakUpCommands(character.name, newGeneratedText);
+  let newResponse = newResponses.join('\n');
+  let newResponseString = newResponse.replace(/<user>/g, username);
+  let newElements = elementsBefore.concat(`${character.name}: ${newResponseString}`).concat(elementsAfter);
+  data.messages = newElements;
+  await fs.writeJSON(pathName, data, 'utf8');
+  return newResponseString;
+}
+
+export async function getBasePrompt(){
+  let charId = botSettings.charId;
+  let character = await getCharacter(charId);
+  let basePrompt = '';
+  if(character.description.length > 1){
+    basePrompt += character.description + '\n';
+  }
+  if(character.scenario.length > 1){
+    basePrompt += 'Scenario:\n' + character.scenario + '\n';
+  }
+  if(character.mes_example.length > 1){
+    basePrompt += 'Example Dialogue:\n' + character.mes_example + '\n';
+  }
+  return basePrompt;
+}
