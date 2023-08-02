@@ -1289,8 +1289,6 @@ disClient.on('messageCreate', async (message) => {
     return;
   }
   if (message.author.id === disClient.user.id && message.webhookId === null){
-    message.react('♻️');
-    message.react('🗑️');
     return;
   }
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
@@ -1325,8 +1323,8 @@ disClient.on('messageCreate', async (message) => {
 });
 
 disClient.on(Events.MessageReactionAdd, async (reaction, user) => {
-  console.log('Reaction added to message')
   if (user.bot) return;
+  if(!botSettings.channels.includes(reaction.message.channel.id)) return;
   if (reaction.partial) {
     try {
       await reaction.fetch();
