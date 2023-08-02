@@ -13,7 +13,7 @@ const command = {
         let charId = botSettings.charId;
         let endpointType = botSettings.endpointType;
         let character = await getCharacter(charId);
-        let prompt = await getPrompt(charId, interaction, true, null, true);
+        let prompt = await getPrompt(charId, interaction, true, null, false, true);
         let results;
         let username = await getUserName(channelID, interaction.user.username);
         let stopList = await getStopList(interaction.guild.id, channelID);

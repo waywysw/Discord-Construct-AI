@@ -103,7 +103,7 @@ export async function saveConversation(message, charId, text){
     }
   }
   
-  export async function getPrompt(charId, message, isSystem = false, systemMessage = null, isRegen = false){
+  export async function getPrompt(charId, message, isSystem = false, systemMessage = null, isRegen = false, isCont = false){
     let channelID = message.channel.id;
     if(isRegen){
       await removeLastMessage(charId, channelID);
@@ -115,14 +115,17 @@ export async function saveConversation(message, charId, text){
     let convo = history;
     if(isSystem){
       user = await getUserName(channelID, message.user.username);
-      currentMessage = `${systemMessage}`;
+      currentMessage = `${systemMessage ? systemMessage : ''}`;
     }if(!isSystem){
       user = await getUserName(channelID, message.author.username);
       currentMessage = `${user}: ${message.cleanContent}`;
-    }if(!isRegen){
+    }if(!isRegen && !isCont){
       if (!convo.includes(currentMessage)) {
         convo += '\n' + currentMessage + '\n';
       }
+    }
+    if(isCont){
+      convo += '\n';
     }
     const authorsNote = await fetchAuthorsNote(channelID, charId);
     
