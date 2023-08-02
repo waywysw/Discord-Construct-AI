@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import GlobalState from '../GlobalState.js';
+import { botSettings, saveBotSettings } from '../../../server.js';
 
 const command = {
     data: new SlashCommandBuilder()
@@ -12,8 +12,9 @@ const command = {
     async execute(interaction) {
         await interaction.deferReply();
         const depth = interaction.options.getInteger('lines');
-        GlobalState.historyLines = depth;
-        await interaction.editReply(`**History Length**:\n${GlobalState.historyLines}`);
+        botSettings.historyLength = depth;
+        saveBotSettings(botSettings);
+        await interaction.editReply(`**History Length**:\n${botSettings.historyLength}`);
     },
 };
 

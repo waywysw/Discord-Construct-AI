@@ -108,7 +108,7 @@ export async function saveConversation(message, charId, text){
     if(isRegen){
       await removeLastMessage(charId, channelID);
     }
-    let history = await getHistory(charId, channelID, GlobalState.historyLines);
+    let history = await getHistory(charId, channelID);
     let character = await getCharacter(charId);
     let currentMessage;
     let user;
@@ -241,25 +241,22 @@ export async function saveConversation(message, charId, text){
     return text.replace(/<:[a-zA-Z0-9_]+:[0-9]+>/g, '');
   }
   
-  async function getHistory(charId, channel, lines = null) {
+  async function getHistory(charId, channel) {
+    let lines = botSettings.historyLength ? botSettings.historyLength : 25;
     let logName = `${channel}-${charId}.log`;
     let pathName = path.join('./public/discord/logs/', logName);
     let messageString = '';
+    let messages = [];
     if (fs.existsSync(pathName)) {
       try {
         const data = await fs.readJSON(pathName, 'utf8');
         console.log(data);
         data.messages = data.messages.filter(message => message !== '');
         for(let i = 0; i < data.messages.length; i++){
-          data.messages[i] = data.messages[i].replace(/<user>/g, '');
+          messages.push(data.messages[i].replace(/<user>/g, ''));
         }
-        if(lines) {
-          data.messages = data.messages.slice(-lines);
-        }
-        for(let i = 0; i < data.messages.length; i++){
-          data.messages[i] = data.messages[i].replace(/<user>/g, '');
-        }
-        messageString = data.messages.join('\n');
+        messages = messages.slice(-lines);
+        messageString = messages.join('\n');
         return messageString;
       } catch (err) {
         console.error('Error reading log file:', err);
@@ -268,7 +265,7 @@ export async function saveConversation(message, charId, text){
     } else {
       return '';
     }
-  }
+  }  
   
   
 export async function setDiscordBotInfo(){

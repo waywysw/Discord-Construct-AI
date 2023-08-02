@@ -1069,7 +1069,8 @@ try {
     settings: {},
     stopBrackets : false,
     doMultiLine: false,
-    appId: ''
+    appId: '',
+    historyLength: 25,
   };
 
   fs.writeFileSync('./public/discord/discordBot.json', JSON.stringify(botSettings, null, 2), 'utf-8');

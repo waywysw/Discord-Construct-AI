@@ -20,6 +20,7 @@ const DiscordBot = () => {
   const [selectedChannels, setSelectedChannels] = useState(new Set());
   const [stopBrackets, setStopBrackets] = useState(false);
   const [doMultiLine, setDoMultiLine] = useState(false);
+  const [historyLength, setHistoryLength] = useState(25);
   const [botInvite, setBotInvite] = useState('');
   const [appId, setAppId] = useState('');
 
@@ -53,6 +54,7 @@ const DiscordBot = () => {
       setDoMultiLine(data.doMultiLine);
       setStopBrackets(data.stopBrackets);
       setSelectedChannels(new Set(data.channels));
+      setHistoryLength(data.historyLength ? data.historyLength : 25);
       if (response) {
         const channelsData = await getAvailableChannels();
         setAvailableChannels(channelsData.data);
@@ -105,7 +107,8 @@ const DiscordBot = () => {
       "hordeModel" : hordeModel,
       "settings" : settings,
       "stopBrackets" : stopBrackets ? true : true,
-      "doMultiLine": doMultiLine ? true : false
+      "doMultiLine": doMultiLine ? true : false,
+      "historyLength": historyLength ? historyLength : 25
     }
     saveDiscordConfig(data);
   };  
