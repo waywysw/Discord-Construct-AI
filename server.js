@@ -1288,7 +1288,7 @@ disClient.on('messageCreate', async (message) => {
   if(message.attachments.size > 0){
     return;
   }
-  if (message.author.id === disClient.user.id && message.webhookId === null){
+  if (message.author.id === disClient.user.id || !message.webhookId === null){
     return;
   }
   // If the message does not start with the command prefix and it's channel id is not in botSettings.channels, return.
