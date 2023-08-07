@@ -1,1 +1,1 @@
-npm run base-remote
+npm run base
