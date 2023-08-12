@@ -10,7 +10,7 @@ const command = {
         let settings = botSettings.settings;
         let embedArray = [];
         for (const [key, value] of Object.entries(settings)) {
-            embedArray.push({name: key, value: value, inline: false});
+            embedArray.push({name: `${key}`, value: `${value}`, inline: false});
         }
         let embed = new EmbedBuilder()
             .setTitle('Settings')
