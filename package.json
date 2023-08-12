@@ -6,6 +6,7 @@
   "scripts": {
     "base": "concurrently --kill-others-on-fail \"npm run server\" \"vite\"",
     "base-remote": "concurrently --kill-others-on-fail \"npm run server\" \"vite --host\"",
+    "no-ui": "node server.js --headless",
     "predeploy": "npm run build",
     "build": "vite build",
     "preview": "vite preview",
@@ -44,8 +45,10 @@
     "react-select": "^5.7.1",
     "react-switch": "^7.0.0",
     "react-textarea-autosize": "^8.4.1",
+    "readline": "^1.3.0",
     "selfsigned": "^2.1.1",
-    "styled-components": "^5.3.8"
+    "styled-components": "^5.3.8",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",

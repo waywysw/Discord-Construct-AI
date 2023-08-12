@@ -4,24 +4,54 @@ import path from 'path';
 import { createServer } from 'vite';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname } from 'path';
-import fs from 'fs';
 import multer from 'multer';
 import axios from 'axios';
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import { v4 as uuidv4 } from 'uuid';
 import { Configuration, OpenAIApi } from "openai";
+import fs from 'fs';
 import extract from 'png-chunks-extract';
 import PNGtext from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import jimp from 'jimp';
 import { Client, GatewayIntentBits, Collection, REST, Routes, Partials, Events } from 'discord.js';
 import { cleanEmoji, getUserName, saveConversation, setDiscordBotInfo, doCharacterChat, removeMessageFromLog, regenerateMessage } from './src/discord/Discord.js';
+import readline from 'readline';
+import yargs from 'yargs/yargs';
+import { hideBin } from 'yargs/helpers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const argv = yargs(hideBin(process.argv))
+    .option('port', {
+        alias: 'p',
+        description: 'Port to run server on',
+        type: 'number',
+    })
+    .option('headless', {
+        alias: 'headless, head, h',
+        description: 'Run in headless mode',
+        type: 'boolean',
+    })
+    .help()
+    .alias('help', 'h')
+    .argv;
+
+
+const port = argv.port || 3003;
+
 const app = express();
-const port = process.env.PORT || 3003;
+
+const isHeadless = argv.headless || false;
+
+if (argv.headless) {
+  console.log("Running in headless mode...");
+  // Any other logic for headless mode...
+} else {
+  console.log("Running with UI...");
+  // Logic for non-headless mode...
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -316,15 +346,6 @@ app.post('/tts/generate/:voice_id', async (req, res) => {
   
       let decoded_string;
       switch (format) {
-        case 'webp':
-          const exif_data = await ExifReader.load(fs.readFileSync(img_url));
-          const char_data = exif_data['UserComment']['description'];
-          if (char_data === 'Undefined' && exif_data['UserComment'].value && exif_data['UserComment'].value.length === 1) {
-            decoded_string = exif_data['UserComment'].value[0];
-          } else {
-            decoded_string = char_data;
-          }
-          break;
         case 'png':
           const buffer = fs.readFileSync(img_url);
           const chunks = extract(buffer);
@@ -1152,58 +1173,66 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled promise rejection:', reason);
 });
 
-app.get('/discord-bot/start', (req, res) => {
+function startBot() {
   if (!botReady) {
     loadCommands();
-    if(!botSettings.token || !botSettings.channels || !botSettings.charId || !botSettings.endpoint || !botSettings.endpointType) {
-      res.status(500).send({
-        message: 'Bot not started. Missing required settings.',
-        error: 'Missing required settings.'
-      });
+
+    if (
+      !botSettings.token || 
+      !botSettings.channels || 
+      !botSettings.charId || 
+      !botSettings.endpoint || 
+      !botSettings.endpointType
+    ) {
+      console.error('Bot not started. Missing required settings.');
       return;
     }
-    try{
+
+    try {
       disClient.login(botSettings.token)
-      .catch(error => {
-        console.error('Failed to log in to Discord.', error);
-        res.status(500).send({ 
-          message: 'Failed to log in to Discord. Token might be invalid.',
-          error: error.toString() 
+        .then(() => {
+          console.log('Bot started!');
+          botReady = true;
+        })
+        .catch(error => {
+          console.error('Failed to log in to Discord. Token might be invalid.', error);
+          // Reinitializing the client after a failed attempt
+          disClient = new Client(intents);
+          disClient.commands = new Collection();
         });
-        disClient = new Client(intents);
-        disClient.commands = new Collection();
-      });
-      res.send('Bot started');
-      botReady = true;
-      console.log('Bot started!')
     } catch (error) {
-      console.error('Failed to start bot.', error);
-      res.status(500).send({ 
-        message: 'Failed to start bot. Token might be invalid.',
-        error: error.toString() 
-      });
+      console.error('Failed to start bot. Token might be invalid.', error);
     }
   } else {
-      res.send('Bot already started');
-      console.log('Bot already started!');
-      botReady = true;
+    console.log('Bot already started!');
+    botReady = true;
   }
+}
+
+app.get('/discord-bot/start', (req, res) => {
+  startBot();
 });
 
-app.get('/discord-bot/stop', (req, res) => {
+function stopBot() {
   if (botReady) {
       disClient.destroy();
       disClient = new Client(intents);
       disClient.commands = new Collection();
       botReady = false;
-      res.send('Bot stopped');
-      console.log('Bot stopped!')
+      console.log('Bot stopped!');
+      return 'Bot stopped';
   } else {
-      res.send('Bot already stopped');
-      botReady = false;
       console.log('Bot already stopped!');
+      botReady = false;
+      return 'Bot already stopped';
   }
+}
+
+app.get('/discord-bot/stop', (req, res) => {
+  const message = stopBot();
+  res.send(message);
 });
+
 
 app.get('/discord-bot/status', (req, res) => {
   res.send(botReady)
@@ -1344,3 +1373,46 @@ disClient.on(Events.MessageReactionAdd, async (reaction, user) => {
     reaction.message.delete()
   }
 });
+
+if(isHeadless) {
+  console.log('Starting bot...');
+  let character = getCharacter(botSettings.charId);
+  startBot().then(() => {
+    console.log('Loaded bot settings: ', botSettings);
+    console.log('Loaded bot info: ', character);
+  });
+  initializeConsoleInput();
+}
+function initializeConsoleInput() {
+  const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+  });
+
+  rl.on('line', (input) => {
+      handleConsoleCommand(input);
+  });
+}
+
+function handleConsoleCommand(command) {
+  switch (command) {
+      case 'status':
+        console.log('Server is running');
+        console.log(`Bot is ${botReady ? 'ready' : 'not ready'}`);
+        break;
+      case 'exit':
+        console.log('Exiting server...');
+        process.exit(0);
+        break;
+      case 'restart-bot':
+        console.log('Stopping bot...');
+        let message = stopBot();
+        console.log(message);
+        console.log('Restarting bot...');
+        startBot();
+        break;
+      default:
+        console.log(`Unknown command: ${command}`);
+        break;
+  }
+}

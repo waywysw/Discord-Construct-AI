@@ -585,17 +585,19 @@ export async function removeMessageFromLog(channelID, messageContent){
   let data = await fs.readJSON(pathName, 'utf8');
   let index = data.messages.findIndex(log => log.includes(messageContent));
   let elementsBefore;
-  if (index != -1) { 
-    elementsBefore = data.messages.slice(0, index);
+  if (index != -1) {
+    // Only take the last 25 messages before the matched message
+    elementsBefore = data.messages.slice(Math.max(0, index - 25), index);
   } else {
     console.log('No log contains the original content');
     return;
   }
-  let elementsAfter = data.messages.slice(index + 1, data.messages.length);
+  let elementsAfter = data.messages.slice(index + 1);
   let newLogs = elementsBefore.concat(elementsAfter);
   data.messages = newLogs;
   await fs.writeJSON(pathName, data, 'utf8');
 }
+
 
 export async function regenerateMessage(channelID, message){
   let charId = botSettings.charId;
@@ -607,12 +609,12 @@ export async function regenerateMessage(channelID, message){
   let index = data.messages.findIndex(log => log.includes(message.cleanContent));
   let elementsBefore;
   if (index != -1) { 
-    elementsBefore = data.messages.slice(0, index);
+    elementsBefore = data.messages.slice(Math.max(0, index - (botSettings.historyLength || 25)), index);
   } else {
     console.log('No log contains the original content');
     return;
   }
-  let elementsAfter = data.messages.slice(index + 1, data.messages.length);
+  let elementsAfter = data.messages.slice(index + 1);
   let newLogString = elementsBefore.join('\n') + '\n';
   let stopList = await getStopList(message.guild.id, message.channel.id);
   let basePrompt = await getBasePrompt();
