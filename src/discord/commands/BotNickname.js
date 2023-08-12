@@ -13,6 +13,10 @@ const command = {
 	async execute(interaction) {
         await interaction.deferReply();
         const name = interaction.options.getString('name');
+        if(!interaction.guild){
+            await interaction.editReply('**Error:**\nThis command must be used in a server.');
+            return;
+        }
         const guild = disClient.guilds.cache.get(interaction.guild.id);
         const member = guild.members.cache.get(disClient.user.id);
         await member.setNickname(name);
