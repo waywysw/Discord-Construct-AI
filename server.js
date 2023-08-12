@@ -1395,7 +1395,7 @@ function initializeConsoleInput() {
 }
 
 function handleConsoleCommand(command) {
-  switch (command) {
+  switch (command.split(' ')[0]) {
       case 'status':
         console.log('Server is running');
         console.log(`Bot is ${botReady ? 'ready' : 'not ready'}`);
@@ -1410,6 +1410,18 @@ function handleConsoleCommand(command) {
         console.log(message);
         console.log('Restarting bot...');
         startBot();
+        break;
+      case 'update-bot':
+        console.log('Updating bot...');
+        setDiscordBotInfo();
+        break;
+      case 'help':
+        console.log('Available commands:');
+        console.log('status - Displays the server status');
+        console.log('exit - Exits the server');
+        console.log('restart-bot - Restarts the bot');
+        console.log('update-bot - Updates the bot');
+        console.log('help - Displays this help message');
         break;
       default:
         console.log(`Unknown command: ${command}`);
