@@ -3,8 +3,8 @@ import { botSettings, saveBotSettings } from '../../../server.js';
 
 const command = {
     data: new SlashCommandBuilder()
-    .setName('settings')
-    .setDescription('Shows the current settings of the bot.')
+    .setName('set-settings')
+    .setDescription('Changes the settings of the bot.')
     .addIntegerOption(
         option => option.setName('max-context-length')
             .setDescription('The maximum number of tokens to use in the context.')
