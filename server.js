@@ -1377,10 +1377,9 @@ disClient.on(Events.MessageReactionAdd, async (reaction, user) => {
 if(isHeadless) {
   console.log('Starting bot...');
   let character = getCharacter(botSettings.charId);
-  startBot().then(() => {
-    console.log('Loaded bot settings: ', botSettings);
-    console.log('Loaded bot info: ', character);
-  });
+  startBot();
+  console.log('Loaded bot settings: ', botSettings);
+  console.log('Loaded bot info: ', character);
   initializeConsoleInput();
 }
 function initializeConsoleInput() {
