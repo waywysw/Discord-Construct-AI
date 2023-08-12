@@ -1395,36 +1395,179 @@ function initializeConsoleInput() {
 }
 
 function handleConsoleCommand(command) {
-  switch (command.split(' ')[0]) {
-      case 'status':
-        console.log('Server is running');
-        console.log(`Bot is ${botReady ? 'ready' : 'not ready'}`);
-        break;
-      case 'exit':
-        console.log('Exiting server...');
-        process.exit(0);
-        break;
-      case 'restart-bot':
-        console.log('Stopping bot...');
-        let message = stopBot();
-        console.log(message);
-        console.log('Restarting bot...');
-        startBot();
-        break;
-      case 'update-bot':
-        console.log('Updating bot...');
-        setDiscordBotInfo();
-        break;
-      case 'help':
-        console.log('Available commands:');
-        console.log('status - Displays the server status');
-        console.log('exit - Exits the server');
-        console.log('restart-bot - Restarts the bot');
-        console.log('update-bot - Updates the bot');
-        console.log('help - Displays this help message');
-        break;
-      default:
-        console.log(`Unknown command: ${command}`);
-        break;
+  const tokens = command.split(' ');
+  const mainCommand = tokens[0];
+  switch (mainCommand) {
+    case 'status':
+      console.log('Server is running');
+      console.log(`Bot is ${botReady ? 'ready' : 'not ready'}`);
+      break;
+    case 'exit':
+      console.log('Exiting server...');
+      process.exit(0);
+      break;
+    case 'restart-bot':
+      console.log('Stopping bot...');
+      let message = stopBot();
+      console.log(message);
+      console.log('Restarting bot...');
+      startBot();
+      break;
+    case 'update-bot':
+      console.log('Updating bot...');
+      setDiscordBotInfo();
+      break;
+    case 'help':
+      console.log('Available commands:');
+      console.log('status - Displays the server status');
+      console.log('exit - Exits the server');
+      console.log('restart-bot - Restarts the bot');
+      console.log('update-bot - Updates the bot');
+      console.log('list-settings - Displays all bot settings');
+      console.log('get <property-name> - Displays the value of the specified property');
+      console.log('set <property-name> <new-value> - Sets the value of the specified property');
+      console.log('add-channel <channel-id> - Adds the specified channel to the list of channels the bot will respond to');
+      console.log('remove-channel <channel-id> - Removes the specified channel from the list of channels the bot will respond to');
+      console.log('set-setting <setting-name> <new-value> - Sets the value of the specified setting');
+      console.log('add-setting <setting-name> <new-value> - Adds the specified setting');
+      console.log('remove-setting <setting-name> - Removes the specified setting');
+      console.log('help - Displays this help message');
+      break;
+    case 'set':
+      if (tokens.length < 3) {
+          console.log('Usage: set <property-name> <new-value>');
+          break;
+      }
+      setPropertyValue(tokens[1], tokens[2]);
+      saveBotSettings();
+      break;
+
+    case 'add-channel':
+      if (tokens.length !== 2) {
+          console.log('Usage: add-channel <channel-id>');
+          break;
+      }
+      addChannel(tokens[1]);
+      saveBotSettings();
+      break;
+
+    case 'remove-channel':
+      if (tokens.length !== 2) {
+          console.log('Usage: remove-channel <channel-id>');
+          break;
+      }
+      removeChannel(tokens[1]);
+      saveBotSettings();
+      break;
+
+    case 'set-setting':
+      if (tokens.length < 3) {
+          console.log('Usage: set-setting <setting-name> <new-value>');
+          break;
+      }
+      setSetting(tokens[1], tokens[2]);
+      saveBotSettings();
+      break;
+
+    case 'toggle':
+      if (tokens.length !== 2) {
+          console.log('Usage: toggle <property-name>');
+          break;
+      }
+      toggleProperty(tokens[1]);
+      saveBotSettings();
+      break;
+
+    case 'set-history-length':
+      if (tokens.length !== 2 || isNaN(tokens[1])) {
+          console.log('Usage: set-history-length <length>');
+          break;
+      }
+      botSettings.historyLength = parseInt(tokens[1]);
+      console.log(`History length set to ${botSettings.historyLength}`);
+      saveBotSettings();
+      break;
+    case 'list-settings':
+      listSettings();
+      break;
+    default:
+      console.log(`Unknown command: ${command}`);
+      break;
+  }
+}
+
+function setPropertyValue(propertyName, value) {
+  const validProperties = ['token', 'appId', 'charId', 'endpoint', 'endpointType'];
+  if (!validProperties.includes(propertyName)) {
+      console.log(`Invalid property name: ${propertyName}`);
+      return;
+  }
+  if (propertyName === 'endpoint' && !isValidURL(value)) {
+      console.log('Invalid URL provided');
+      return;
+  }
+  botSettings[propertyName] = value;
+  console.log(`${propertyName} set to ${value}`);
+}
+
+function addChannel(channelId) {
+  if (botSettings.channels.includes(channelId)) {
+      console.log('Channel already exists.');
+      return;
+  }
+  botSettings.channels.push(channelId);
+  console.log(`Channel ${channelId} added.`);
+}
+
+function removeChannel(channelId) {
+  const index = botSettings.channels.indexOf(channelId);
+  if (index === -1) {
+      console.log('Channel does not exist.');
+      return;
+  }
+  botSettings.channels.splice(index, 1);
+  console.log(`Channel ${channelId} removed.`);
+}
+
+function setSetting(settingName, value) {
+  if (!(settingName in botSettings.settings)) {
+      console.log(`Invalid setting name: ${settingName}`);
+      return;
+  }
+  botSettings.settings[settingName] = convertValue(value);
+  console.log(`${settingName} set to ${botSettings.settings[settingName]}`);
+}
+
+function toggleProperty(propertyName) {
+  if (typeof botSettings[propertyName] !== 'boolean') {
+      console.log(`Invalid property for toggle: ${propertyName}`);
+      return;
+  }
+  botSettings[propertyName] = !botSettings[propertyName];
+  console.log(`${propertyName} set to ${botSettings[propertyName]}`);
+}
+
+function isValidURL(str) {
+  // Simple regex to validate URLs. Can be made more complex if needed.
+  const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
+
+function convertValue(value) {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  if (!isNaN(value)) return parseFloat(value);
+  return value;
+}
+
+function listSettings() {
+  console.log('Current bot settings:');
+  for (const [key, value] of Object.entries(botSettings.settings)) {
+      console.log(`${key}: ${value}`);
   }
 }
