@@ -1,7 +1,7 @@
 import { botReady, botSettings, disClient, generateText, getCharacter, CHARACTER_IMAGES_FOLDER, notesPath, aliasPath } from "../../server.js";
 import GlobalState from "./GlobalState.js";
 import { promisify } from 'util';
-import { ActivityType } from 'discord.js';
+import { ActivityType, Message } from 'discord.js';
 import path from 'path';
 import fs from 'fs-extra';
 
@@ -12,7 +12,12 @@ export async function doCharacterChat(message){
     let character = await getCharacter(charId);
     let results;
     let username = await getUserName(message.channel.id, message.author.username);
-    let stopList = await getStopList(message.guild.id, message.channel.id);
+    let stopList;
+    if(message.channel.isDMBased()){
+      stopList = [`${username}:`]
+    }else{
+      stopList = await getStopList(message.guild.id, message.channel.id);
+    }
     console.log("Generating text...")
     try{
       results = await generateText(prompt, username, stopList);
