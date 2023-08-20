@@ -16,7 +16,12 @@ const command = {
         let prompt = await getPrompt(charId, interaction, true, null, false, true);
         let results;
         let username = await getUserName(channelID, interaction.user.username);
-        let stopList = await getStopList(interaction.guild.id, channelID);
+        let stopList;
+        if(interaction.channel.isDMBased()){
+          stopList = [`${username}:`]
+        }else{
+          stopList = await getStopList(interaction.guild.id, interaction.channel.id);
+        }
         try{
           results = await generateText(prompt, username, stopList, stopList);
         } catch (error) {

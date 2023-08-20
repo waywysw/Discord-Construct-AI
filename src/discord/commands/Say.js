@@ -28,7 +28,12 @@ const command = {
         let results;
         console.log("Generating text...");
         let username = await getUserName(channelID, interaction.user.username);
-        let stopList = await getStopList(interaction.guild.id, channelID)
+        let stopList;
+        if(interaction.channel.isDMBased()){
+          stopList = [`${username}:`]
+        }else{
+          stopList = await getStopList(interaction.guild.id, interaction.channel.id);
+        }
         stopList.push(`${name}:`)
         try{
           results = await generateText(prompt, username, stopList);
