@@ -26,3 +26,6 @@ uploads/*
 *.log
 public/*
 *.png
+BotConfigs/Construct-discordBot.json
+BotConfigs/Normal-discordBot.json
+discordBot.json
